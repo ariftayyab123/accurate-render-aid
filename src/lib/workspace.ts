@@ -97,6 +97,15 @@ export function useWorkspace() {
   return { state, update, reset: resetWorkspace, loadDemo: loadDemoWorkspace };
 }
 
+/** True only after client hydration, so stored state is never read during SSR render. */
+export function useHydrated() {
+  return useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
+}
+
 const PERIOD_END = new Date(`${ANALYSIS_PERIOD.end}T23:59:59Z`).getTime();
 
 export function periodStart(days: number) {

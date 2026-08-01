@@ -4,7 +4,7 @@ import { Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppSidebar } from "@/components/app/app-sidebar";
 import { TopBar } from "@/components/app/top-bar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useWorkspace } from "@/lib/workspace";
+import { useHydrated, useWorkspace } from "@/lib/workspace";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -12,15 +12,21 @@ export const Route = createFileRoute("/app")({
 
 function AppLayout() {
   const { state } = useWorkspace();
+  const hydrated = useHydrated();
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!hydrated) return;
     if (!state.signedIn) {
       navigate({ to: "/" });
     } else if (!state.onboardingComplete) {
       navigate({ to: "/onboarding" });
     }
-  }, [state.signedIn, state.onboardingComplete, navigate]);
+  }, [hydrated, state.signedIn, state.onboardingComplete, navigate]);
+
+  if (!hydrated) {
+    return <div className="min-h-screen bg-background" />;
+  }
 
   return (
     <SidebarProvider>

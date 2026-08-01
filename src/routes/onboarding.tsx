@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { CHANNEL_LABELS, type ChannelCode } from "@/data/types";
 import { cn } from "@/lib/utils";
-import { useWorkspace } from "@/lib/workspace";
+import { useHydrated, useWorkspace } from "@/lib/workspace";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
@@ -35,12 +35,19 @@ const CHANNELS: ChannelCode[] = ["zomato", "swiggy", "direct"];
 
 function Onboarding() {
   const { state, update } = useWorkspace();
+  const hydrated = useHydrated();
   const navigate = useNavigate();
   const [step, setStep] = useState(state.onboardingStep);
 
   useEffect(() => {
-    if (!state.signedIn) navigate({ to: "/" });
-  }, [state.signedIn, navigate]);
+    if (hydrated && !state.signedIn) navigate({ to: "/" });
+  }, [hydrated, state.signedIn, navigate]);
+
+  useEffect(() => {
+    if (hydrated) setStep(state.onboardingStep);
+    // Only sync once the stored step is available after hydration.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated]);
 
   const toggleChannel = (channel: ChannelCode) => {
     const next = state.channels.includes(channel)
