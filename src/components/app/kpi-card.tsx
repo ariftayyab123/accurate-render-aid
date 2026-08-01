@@ -21,6 +21,8 @@ interface KpiCardProps {
   label: string;
   value: string;
   hint?: string;
+  caption?: string;
+  size?: "default" | "hero";
   tone?: "default" | "positive" | "negative" | "warning";
   formula: string;
   rows: CalcRow[];
@@ -34,7 +36,17 @@ const toneClass = {
   warning: "text-warning",
 };
 
-export function KpiCard({ label, value, hint, tone = "default", formula, rows, note }: KpiCardProps) {
+export function KpiCard({
+  label,
+  value,
+  hint,
+  caption,
+  size = "default",
+  tone = "default",
+  formula,
+  rows,
+  note,
+}: KpiCardProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -42,16 +54,43 @@ export function KpiCard({ label, value, hint, tone = "default", formula, rows, n
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="group flex w-full flex-col gap-1 border-b border-border bg-card px-4 py-3 text-left transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:border-b-0 md:border-r md:last:border-r-0"
+        className={cn(
+          "group flex h-full w-full flex-col gap-1 rounded-xl border border-border bg-card p-5 text-left transition-colors hover:border-primary/40 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          size === "hero" && "gap-2 bg-accent p-6",
+        )}
       >
-        <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+        <span
+          className={cn(
+            "flex items-center gap-1.5 text-sm font-medium text-muted-foreground",
+            size === "hero" && "text-base text-accent-foreground",
+          )}
+        >
           {label}
-          <Calculator className="size-3 opacity-0 transition-opacity group-hover:opacity-70" />
         </span>
-        <span className={cn("text-xl font-semibold tabular tracking-tight", toneClass[tone])}>
+        <span
+          className={cn(
+            "display text-2xl font-semibold tabular tracking-tight",
+            size === "hero" && "text-4xl sm:text-5xl",
+            toneClass[tone],
+          )}
+        >
           {value}
         </span>
+        {caption ? (
+          <span
+            className={cn(
+              "text-sm leading-relaxed text-muted-foreground",
+              size === "hero" && "max-w-md text-base text-foreground/80",
+            )}
+          >
+            {caption}
+          </span>
+        ) : null}
         {hint ? <span className="text-xs text-muted-foreground">{hint}</span> : null}
+        <span className="mt-auto inline-flex items-center gap-1 pt-3 text-xs font-medium text-primary">
+          <Calculator className="size-3.5" />
+          Show me how this is worked out
+        </span>
       </button>
 
       <Sheet open={open} onOpenChange={setOpen}>

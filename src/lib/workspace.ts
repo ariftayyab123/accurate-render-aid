@@ -15,6 +15,9 @@ export interface WorkspaceState {
   channels: ChannelCode[];
   dataMode: "demo" | "empty";
   periodDays: number;
+  /** ISO date (yyyy-mm-dd) custom range. When both are set they override periodDays. */
+  rangeStart: string;
+  rangeEnd: string;
 }
 
 export const DEFAULT_STATE: WorkspaceState = {
@@ -28,6 +31,8 @@ export const DEFAULT_STATE: WorkspaceState = {
   channels: ["zomato", "swiggy", "direct"],
   dataMode: "demo",
   periodDays: 30,
+  rangeStart: "",
+  rangeEnd: "",
 };
 
 export const DEMO_STATE: WorkspaceState = {
@@ -41,6 +46,8 @@ export const DEMO_STATE: WorkspaceState = {
   channels: ["zomato", "swiggy", "direct"],
   dataMode: "demo",
   periodDays: 30,
+  rangeStart: "",
+  rangeEnd: "",
 };
 
 const STORAGE_KEY = "rpi.workspace.v1";
@@ -107,9 +114,47 @@ export function useHydrated() {
 }
 
 const PERIOD_END = new Date(`${ANALYSIS_PERIOD.end}T23:59:59Z`).getTime();
+const PERIOD_FIRST = new Date(`${ANALYSIS_PERIOD.start}T00:00:00Z`).getTime();
+
+export const DATA_RANGE = { start: ANALYSIS_PERIOD.start, end: ANALYSIS_PERIOD.end };
 
 export function periodStart(days: number) {
   return PERIOD_END - days * 24 * 60 * 60 * 1000;
+}
+
+function clamp(value: number) {
+  return Math.min(Math.max(value, PERIOD_FIRST), PERIOD_END);
+}
+
+/** Resolved date window for the workspace, whether from a preset or a custom range. */
+export function resolveRange(state: WorkspaceState) {
+  if (state.rangeStart && state.rangeEnd) {
+    const from = clamp(new Date(`${state.rangeStart}T00:00:00Z`).getTime());
+    const to = clamp(new Date(`${state.rangeEnd}T23:59:59Z`).getTime());
+    if (!Number.isNaN(from) && !Number.isNaN(to) && from <= to) {
+      return { from, to, custom: true as const };
+    }
+  }
+  return { from: periodStart(state.periodDays), to: PERIOD_END, custom: false as const };
+}
+
+const DATE_FMT = new Intl.DateTimeFormat("en-IN", {
+  day: "numeric",
+  month: "short",
+  timeZone: "UTC",
+});
+
+export function rangeLabel(state: WorkspaceState) {
+  const range = resolveRange(state);
+  if (!range.custom) {
+    return PERIOD_OPTIONS.find((option) => option.days === state.periodDays)?.label ?? "Last 30 days";
+  }
+  return `${DATE_FMT.format(new Date(range.from))} – ${DATE_FMT.format(new Date(range.to))}`;
+}
+
+export function rangeDays(state: WorkspaceState) {
+  const range = resolveRange(state);
+  return Math.max(1, Math.round((range.to - range.from) / (24 * 60 * 60 * 1000)));
 }
 
 /** Orders visible for the active outlet, period and selected channels. */
@@ -117,12 +162,12 @@ export function useDataset() {
   const { state } = useWorkspace();
   return useMemo(() => {
     if (state.dataMode === "empty") return [] as Order[];
-    const from = periodStart(state.periodDays);
+    const { from, to } = resolveRange(state);
     return DEMO_ORDERS.filter((order) => {
       const time = new Date(order.placedAt).getTime();
-      return time >= from && time <= PERIOD_END && state.channels.includes(order.channel);
+      return time >= from && time <= to && state.channels.includes(order.channel);
     });
-  }, [state.dataMode, state.periodDays, state.channels]);
+  }, [state.dataMode, state.periodDays, state.rangeStart, state.rangeEnd, state.channels]);
 }
 
 export const PERIOD_OPTIONS = [
