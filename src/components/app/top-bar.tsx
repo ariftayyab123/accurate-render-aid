@@ -17,11 +17,10 @@ import { rangeLabel, useDataset, useWorkspace } from "@/lib/workspace";
 import { formatPercent } from "@/lib/format";
 
 export function TopBar() {
-  const { state, update, reset } = useWorkspace();
+  const { state, reset } = useWorkspace();
   const orders = useDataset();
   const navigate = useNavigate();
   const confidence = dataConfidence(orders);
-  void update;
 
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-border bg-background/95 px-3 backdrop-blur">
