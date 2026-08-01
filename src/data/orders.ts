@@ -99,7 +99,10 @@ function buildOrders(): Order[] {
   // Deterministic shuffle so channels interleave across the month.
   for (let i = queue.length - 1; i > 0; i -= 1) {
     const j = Math.floor(random() * (i + 1));
-    [queue[i], queue[j]] = [queue[j], queue[i]];
+    const a = queue[i]!;
+    const b = queue[j]!;
+    queue[i] = b;
+    queue[j] = a;
   }
 
   queue.forEach((channel, index) => {
@@ -115,10 +118,10 @@ function buildOrders(): Order[] {
     const lines: OrderLine[] = [];
     const used = new Set<string>();
     for (let i = 0; i < lineCount; i += 1) {
-      let itemId = WEIGHTED_POOL[Math.floor(random() * WEIGHTED_POOL.length)];
+      let itemId = WEIGHTED_POOL[Math.floor(random() * WEIGHTED_POOL.length)]!;
       let guard = 0;
       while (used.has(itemId) && guard < 6) {
-        itemId = WEIGHTED_POOL[Math.floor(random() * WEIGHTED_POOL.length)];
+        itemId = WEIGHTED_POOL[Math.floor(random() * WEIGHTED_POOL.length)]!;
         guard += 1;
       }
       used.add(itemId);
