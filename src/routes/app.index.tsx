@@ -63,7 +63,7 @@ function Overview() {
   const header = (
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Your money, {rangeLabel(state).toLowerCase()}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Your money · {rangeLabel(state)}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {totals.orders} orders over {days} days · every number can be opened up
         </p>
