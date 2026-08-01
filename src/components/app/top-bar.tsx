@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ChevronDown, LogOut, ShieldCheck, Upload } from "lucide-react";
+import { CalendarDays, ChevronDown, LogOut, ShieldCheck, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { dataConfidence } from "@/lib/metrics";
-import { PERIOD_OPTIONS, useDataset, useWorkspace } from "@/lib/workspace";
+import { rangeLabel, useDataset, useWorkspace } from "@/lib/workspace";
 import { formatPercent } from "@/lib/format";
 
 export function TopBar() {
@@ -21,8 +21,7 @@ export function TopBar() {
   const orders = useDataset();
   const navigate = useNavigate();
   const confidence = dataConfidence(orders);
-  const activePeriod =
-    PERIOD_OPTIONS.find((option) => option.days === state.periodDays) ?? PERIOD_OPTIONS[0]!;
+  void update;
 
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-border bg-background/95 px-3 backdrop-blur">
@@ -37,28 +36,14 @@ export function TopBar() {
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-1.5">
-              {activePeriod.label}
-              <ChevronDown className="size-3.5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {PERIOD_OPTIONS.map((option) => (
-              <DropdownMenuItem
-                key={option.days}
-                onSelect={() => update({ periodDays: option.days })}
-              >
-                {option.label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <span className="hidden items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground sm:flex">
+          <CalendarDays className="size-3.5 text-primary" />
+          {rangeLabel(state)}
+        </span>
 
-        <span className="hidden items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground sm:flex">
+        <span className="hidden items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground lg:flex">
           <ShieldCheck className="size-3.5 text-positive" />
-          Confidence {formatPercent(confidence, 0)}
+          {formatPercent(confidence, 0)} from uploads
         </span>
 
         <Button
