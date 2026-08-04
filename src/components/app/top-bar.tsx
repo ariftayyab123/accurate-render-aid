@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { supabase } from "@/integrations/supabase/client";
 import { dataConfidence } from "@/lib/metrics";
 import { rangeLabel, useDataset, useWorkspace } from "@/lib/workspace";
 import { formatPercent } from "@/lib/format";
@@ -72,9 +73,10 @@ export function TopBar() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onSelect={() => {
+              onSelect={async () => {
+                await supabase.auth.signOut();
                 reset();
-                navigate({ to: "/" });
+                navigate({ to: "/auth", replace: true });
               }}
             >
               <LogOut className="size-4" />
