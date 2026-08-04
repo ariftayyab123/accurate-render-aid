@@ -49,6 +49,7 @@ export function KpiCard({
   note,
 }: KpiCardProps) {
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
 
   return (
     <>
