@@ -3,6 +3,7 @@ import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { ANALYSIS_PERIOD, DEMO_ORDERS } from "@/data/orders";
 import { DEMO_OUTLETS, DEMO_RESTAURANT } from "@/data/menu";
 import type { ChannelCode, Order } from "@/data/types";
+import type { MarketCode } from "@/data/markets";
 
 export interface WorkspaceState {
   signedIn: boolean;
@@ -11,8 +12,10 @@ export interface WorkspaceState {
   onboardingComplete: boolean;
   restaurantName: string;
   city: string;
+  market: MarketCode;
+  currency: string;
   outletName: string;
-  channels: ChannelCode[];
+  channels: string[];
   dataMode: "demo" | "empty";
   periodDays: number;
   /** ISO date (yyyy-mm-dd) custom range. When both are set they override periodDays. */
@@ -27,6 +30,8 @@ export const DEFAULT_STATE: WorkspaceState = {
   onboardingComplete: false,
   restaurantName: "",
   city: "",
+  market: "IN",
+  currency: "INR",
   outletName: "",
   channels: ["zomato", "swiggy", "direct"],
   dataMode: "demo",
@@ -42,6 +47,8 @@ export const DEMO_STATE: WorkspaceState = {
   onboardingComplete: true,
   restaurantName: DEMO_RESTAURANT.name,
   city: DEMO_RESTAURANT.city,
+  market: "IN",
+  currency: "INR",
   outletName: DEMO_OUTLETS[0]!.name,
   channels: ["zomato", "swiggy", "direct"],
   dataMode: "demo",
@@ -165,7 +172,7 @@ export function useDataset() {
     const { from, to } = resolveRange(state);
     return DEMO_ORDERS.filter((order) => {
       const time = new Date(order.placedAt).getTime();
-      return time >= from && time <= to && state.channels.includes(order.channel);
+      return time >= from && time <= to && state.channels.includes(order.channel as ChannelCode);
     });
   }, [state.dataMode, state.periodDays, state.rangeStart, state.rangeEnd, state.channels]);
 }
