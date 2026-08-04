@@ -23,10 +23,10 @@ function AppLayout() {
   const { dir, option } = useI18n();
 
   useEffect(() => {
+    // Only the language marker goes on <html>; direction is applied to the
+    // content column so the sidebar chrome keeps its layout.
     document.documentElement.setAttribute("lang", option.locale);
-    document.documentElement.setAttribute("dir", dir);
-    return () => document.documentElement.setAttribute("dir", "ltr");
-  }, [dir, option.locale]);
+  }, [option.locale]);
 
   useEffect(() => {
     if (!hydrated || loading) return;
@@ -50,7 +50,7 @@ function AppLayout() {
         <AppSidebar />
         <SidebarInset className="min-w-0 bg-background">
           <TopBar />
-          <main className="min-w-0 flex-1">
+          <main dir={dir} className="min-w-0 flex-1">
             <Outlet />
           </main>
         </SidebarInset>

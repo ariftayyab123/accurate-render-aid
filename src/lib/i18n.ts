@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import { marketConfig, type MarketCode } from "@/data/markets";
+import { CHANNEL_LABELS } from "@/data/types";
 import { setActiveFormat } from "@/lib/format";
 import { useWorkspace } from "@/lib/workspace";
 
@@ -263,7 +264,9 @@ export function useI18n() {
       t: (key: string, vars?: Record<string, string | number>) => translate(language, key, vars),
       /** Channel display name for the active market (brand names are never translated). */
       channelLabel: (code: string) =>
-        market.channels.find((channel) => channel.code === code)?.label ?? code,
+        market.channels.find((channel) => channel.code === code)?.label ??
+        CHANNEL_LABELS[code as keyof typeof CHANNEL_LABELS] ??
+        code,
     }),
     [language, option, available, market, update],
   );
