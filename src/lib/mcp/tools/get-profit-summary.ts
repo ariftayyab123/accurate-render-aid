@@ -2,7 +2,8 @@ import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
 
 import { DEMO_ORDERS } from "@/data/orders";
-import { channelBreakdown, totalsFor } from "@/lib/metrics";
+import { summarise, summariseByChannel } from "@/lib/metrics";
+import type { ChannelCode } from "@/data/types";
 
 export default defineTool({
   name: "get_profit_summary",
@@ -17,8 +18,9 @@ export default defineTool({
     const end = Math.max(...DEMO_ORDERS.map((order) => new Date(order.placedAt).getTime()));
     const from = end - days * 24 * 60 * 60 * 1000;
     const orders = DEMO_ORDERS.filter((order) => new Date(order.placedAt).getTime() >= from);
-    const totals = totalsFor(orders);
-    const channels = channelBreakdown(orders).map((row) => ({
+    const totals = summarise(orders);
+    const codes: ChannelCode[] = ["zomato", "swiggy", "direct"];
+    const channels = summariseByChannel(orders, codes).map((row) => ({
       channel: row.channel,
       orders: row.orders,
       sales: Math.round(row.grossOrderValue),
