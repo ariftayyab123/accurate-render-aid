@@ -17,8 +17,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CHANNEL_LABELS } from "@/data/types";
-import { formatCurrency, formatPercent } from "@/lib/format";
+import { currencySymbol, formatCurrency, formatPercent } from "@/lib/format";
+import { useI18n } from "@/lib/i18n";
 import { dataConfidence, summarise, summariseByChannel, summariseByItem } from "@/lib/metrics";
 import { analysisChannels, rangeDays, rangeLabel, useDataset, useWorkspace } from "@/lib/workspace";
 
@@ -44,6 +44,7 @@ export const Route = createFileRoute("/app/")({
 function Overview() {
   const { state } = useWorkspace();
   const orders = useDataset();
+  const { t, channelLabel } = useI18n();
   const totals = summarise(orders);
   const channels = summariseByChannel(orders, analysisChannels(state)).filter(
     (row) => row.orders > 0,
@@ -65,9 +66,9 @@ function Overview() {
   const header = (
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Your money · {rangeLabel(state)}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("overview.title")} · {rangeLabel(state)}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {totals.orders} orders over {days} days · every number can be opened up
+          {t("overview.subtitle", { orders: totals.orders, days })}
         </p>
       </div>
       <DateRangeFilter />
@@ -97,10 +98,10 @@ function Overview() {
         <div className="lg:col-span-2">
           <KpiCard
             size="hero"
-            label="You kept this much"
+            label={t("overview.youKept")}
             value={formatCurrency(totals.contribution)}
             tone="positive"
-            caption={`Out of ${formatCurrency(totals.grossOrderValue)} in sales, you kept about ₹${perHundred} of every ₹100 after apps, discounts and food cost. Rent, salaries and electricity still come out of this.`}
+            caption={t("overview.youKeptCaption", { sales: formatCurrency(totals.grossOrderValue), per: `${currencySymbol()}${perHundred}`, hundred: `${currencySymbol()}100` })}
             formula="Revenue basis − platform deduction − food and packaging cost"
             rows={[
               { label: "Revenue basis", value: formatCurrency(totals.revenueBasis) },
@@ -119,10 +120,10 @@ function Overview() {
           />
         </div>
         <KpiCard
-          label="Money kept per ₹100"
+          label={t("overview.perHundred", { hundred: `${currencySymbol()}100` })}
           value={formatPercent(totals.margin)}
-          caption={`Roughly ₹${perHundred} out of every ₹100 of sales stays with you.`}
-          hint={`Numbers are ${formatPercent(confidence, 0)} from uploaded records`}
+          caption={t("overview.perHundredCaption", { per: `${currencySymbol()}${perHundred}`, hundred: `${currencySymbol()}100` })}
+          hint={t("overview.confidenceHint", { pct: formatPercent(confidence, 0) })}
           tone="positive"
           formula="Estimated contribution ÷ revenue basis"
           rows={[
@@ -140,9 +141,9 @@ function Overview() {
 
       <section className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
-          label="Total sales"
+          label={t("overview.totalSales")}
           value={formatCurrency(totals.grossOrderValue)}
-          caption={`${totals.orders} orders · average bill ${formatCurrency(totals.averageOrderValue)}`}
+          caption={t("overview.salesCaption", { orders: totals.orders, avg: formatCurrency(totals.averageOrderValue) })}
           formula="Item selling value + customer-facing packaging charge + other merchant charges"
           rows={[
             { label: "Orders in period", value: String(totals.orders), source: "Imported" },
@@ -159,9 +160,9 @@ function Overview() {
           ]}
         />
         <KpiCard
-          label="Discounts you paid for"
+          label={t("overview.discounts")}
           value={formatCurrency(totals.restaurantDiscounts)}
-          caption={`${formatPercent(totals.restaurantDiscounts / totals.grossOrderValue)} of your sales went back to customers as your own offers.`}
+          caption={t("overview.discountsCaption", { pct: formatPercent(totals.restaurantDiscounts / totals.grossOrderValue) })}
           tone="negative"
           formula="Discounts you funded, plus refunded item value, removed from gross order value"
           rows={[
@@ -179,9 +180,9 @@ function Overview() {
           ]}
         />
         <KpiCard
-          label="What the apps took"
+          label={t("overview.appsTook")}
           value={formatCurrency(totals.platformDeductions)}
-          caption={`${formatPercent(totals.platformDeductions / totals.revenueBasis)} of your sales — commission, GST on it, payment and ad charges.`}
+          caption={t("overview.appsTookCaption", { pct: formatPercent(totals.platformDeductions / totals.revenueBasis) })}
           tone="negative"
           formula="Service fee + GST on platform services + payment fee + ad allocation + fulfilment + adjustments"
           rows={[
@@ -215,9 +216,9 @@ function Overview() {
           note="TDS and TCS are tracked in the settlement view and never reduce contribution here."
         />
         <KpiCard
-          label="Food and packing cost"
+          label={t("overview.foodCost")}
           value={formatCurrency(totals.foodAndPackaging)}
-          caption={`${formatPercent(totals.foodAndPackaging / totals.revenueBasis)} of sales — what it cost you to cook and pack these orders.`}
+          caption={t("overview.foodCostCaption", { pct: formatPercent(totals.foodAndPackaging / totals.revenueBasis) })}
           formula="Sum of item food cost and packaging cost across all order lines"
           rows={[
             { label: "Recipe cost basis", value: "Menu master", source: "Manual" },
@@ -235,13 +236,15 @@ function Overview() {
         <section className="mt-3 flex gap-3 rounded-xl border border-border bg-accent px-5 py-4">
           <Lightbulb className="mt-0.5 size-5 shrink-0 text-primary" />
           <p className="text-sm leading-relaxed">
-            <span className="font-semibold">Worth a look: </span>
-            You keep {formatPercent(best.margin)} on {CHANNEL_LABELS[best.channel]} orders but only{" "}
-            {formatPercent(worst.margin)} on {CHANNEL_LABELS[worst.channel]}. On{" "}
-            {CHANNEL_LABELS[worst.channel]} you spent{" "}
-            {formatCurrency(worst.deductionBreakdown.adAllocation)} on ads and{" "}
-            {formatCurrency(worst.restaurantDiscounts)} on your own discounts — check those before
-            spending more there.
+            <span className="font-semibold">{t("overview.worthALook")} </span>
+            {t("overview.insight", {
+              bestPct: formatPercent(best.margin),
+              best: channelLabel(best.channel),
+              worstPct: formatPercent(worst.margin),
+              worst: channelLabel(worst.channel),
+              ads: formatCurrency(worst.deductionBreakdown.adAllocation),
+              discounts: formatCurrency(worst.restaurantDiscounts),
+            })}
           </p>
         </section>
       ) : null}
@@ -249,13 +252,13 @@ function Overview() {
       <section className="mt-3 rounded-xl border border-border bg-card">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-5 py-4">
           <div>
-            <h2 className="text-base font-semibold">Where your orders came from</h2>
+            <h2 className="text-base font-semibold">{t("overview.ordersFrom")}</h2>
             <p className="text-xs text-muted-foreground">
-              How much of every ₹100 you keep on each app
+              {t("overview.keepRate").replace("100", `${currencySymbol()}100`)}
             </p>
           </div>
           <Link to="/app/orders" className="text-sm font-medium text-primary hover:underline">
-            See all orders
+            {t("overview.seeOrders")}
           </Link>
         </div>
 
@@ -263,7 +266,7 @@ function Overview() {
           {channels.map((row) => (
             <div key={row.channel} className="rounded-xl border border-border bg-surface p-4">
               <div className="flex items-baseline justify-between gap-2">
-                <p className="font-medium">{CHANNEL_LABELS[row.channel]}</p>
+                <p className="font-medium">{channelLabel(row.channel)}</p>
                 <p className="display text-xl font-semibold tabular">{formatPercent(row.margin)}</p>
               </div>
               <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
@@ -273,9 +276,9 @@ function Overview() {
                 />
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                {row.orders} orders · {formatCurrency(row.grossOrderValue)} sales ·{" "}
+                {row.orders} {t("overview.orders")} · {formatCurrency(row.grossOrderValue)} {t("overview.sales")} ·{" "}
                 <span className="font-medium text-foreground">
-                  {formatCurrency(row.contribution)} kept
+                  {formatCurrency(row.contribution)} {t("overview.kept")}
                 </span>
               </p>
             </div>
@@ -284,7 +287,7 @@ function Overview() {
 
         <Collapsible>
           <CollapsibleTrigger className="w-full border-t border-border px-5 py-3 text-left text-sm font-medium text-primary hover:underline">
-            Show the full number table
+            {t("overview.showTable")}
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="overflow-x-auto border-t border-border">
@@ -306,7 +309,7 @@ function Overview() {
             <TableBody>
               {channels.map((row) => (
                 <TableRow key={row.channel}>
-                  <TableCell className="font-medium">{CHANNEL_LABELS[row.channel]}</TableCell>
+                  <TableCell className="font-medium">{channelLabel(row.channel)}</TableCell>
                   <TableCell className="text-right">{row.orders}</TableCell>
                   <TableCell className="text-right">{formatCurrency(row.grossOrderValue)}</TableCell>
                   <TableCell className="text-right">
@@ -375,31 +378,31 @@ function Overview() {
 
       <section className="mt-3 grid gap-3 lg:grid-cols-2">
         <ContributorList
-          title="Dishes that earn you the most"
-          caption="Money kept across these dates"
+          title={t("overview.bestDishes")}
+          caption={t("overview.bestDishesCaption")}
           rows={strongest.map((row) => ({
             name: row.item.name,
             primary: formatCurrency(row.contribution),
-            secondary: `${row.unitsSold} sold · keeps ${formatPercent(row.margin)}`,
+            secondary: `${row.unitsSold} ${t("overview.sold")} · ${formatPercent(row.margin)}`,
           }))}
         />
         <ContributorList
-          title="Dishes that leave you little"
-          caption="They sell, but not much stays with you"
+          title={t("overview.weakDishes")}
+          caption={t("overview.weakDishesCaption")}
           rows={weakest.map((row) => ({
             name: row.item.name,
             primary: formatPercent(row.margin),
-            secondary: `${row.unitsSold} sold · ${formatCurrency(row.contribution)} kept`,
+            secondary: `${row.unitsSold} ${t("overview.sold")} · ${formatCurrency(row.contribution)} ${t("overview.kept")}`,
           }))}
         />
       </section>
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
         <Badge variant="outline" className="font-normal">
-          This is money kept before rent and salaries
+          {t("overview.beforeFixed")}
         </Badge>
         <p className="text-xs text-muted-foreground">
-          All figures are sample data made for this prototype, not real Zomato or Swiggy data.
+          {t("overview.sampleNote")}
         </p>
       </div>
     </div>

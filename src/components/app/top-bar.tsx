@@ -16,26 +16,30 @@ import { supabase } from "@/integrations/supabase/client";
 import { dataConfidence } from "@/lib/metrics";
 import { rangeLabel, useDataset, useWorkspace } from "@/lib/workspace";
 import { formatPercent } from "@/lib/format";
+import { useI18n } from "@/lib/i18n";
+import { LanguageSwitcher } from "@/components/app/language-switcher";
 
 export function TopBar() {
   const { state, reset } = useWorkspace();
   const orders = useDataset();
   const navigate = useNavigate();
   const confidence = dataConfidence(orders);
+  const { t } = useI18n();
 
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-border bg-background/95 px-3 backdrop-blur">
       <SidebarTrigger />
       <div className="min-w-0">
         <p className="truncate text-sm font-medium leading-tight">
-          {state.restaurantName || "Your restaurant"}
+          {state.restaurantName || t("top.yourRestaurant")}
         </p>
         <p className="truncate text-xs text-muted-foreground">
-          {state.outletName || "Outlet"} · {state.city || "City"}
+          {state.outletName || t("top.outlet")} · {state.city || t("top.city")}
         </p>
       </div>
 
       <div className="ml-auto flex items-center gap-2">
+        <LanguageSwitcher />
         <span className="hidden items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground sm:flex">
           <CalendarDays className="size-3.5 text-primary" />
           {rangeLabel(state)}
@@ -43,19 +47,19 @@ export function TopBar() {
 
         <span className="hidden items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground lg:flex">
           <ShieldCheck className="size-3.5 text-positive" />
-          {formatPercent(confidence, 0)} from uploads
+          {formatPercent(confidence, 0)} {t("top.fromUploads")}
         </span>
 
         <Button
           variant="outline"
           size="sm"
           className="gap-1.5"
-          onClick={() => toast("Imports arrive in the next phase", {
-            description: "Order and settlement uploads are not part of this prototype build.",
+          onClick={() => toast(t("top.uploadsSoon"), {
+            description: t("top.uploadsSoonBody"),
           })}
         >
           <Upload className="size-3.5" />
-          <span className="hidden sm:inline">Upload</span>
+          <span className="hidden sm:inline">{t("top.upload")}</span>
         </Button>
 
         <DropdownMenu>
@@ -69,7 +73,7 @@ export function TopBar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel className="truncate text-xs font-normal text-muted-foreground">
-              {state.email || "Demo session"}
+              {state.email || t("top.demoSession")}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -80,7 +84,7 @@ export function TopBar() {
               }}
             >
               <LogOut className="size-4" />
-              Sign out
+              {t("top.signOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

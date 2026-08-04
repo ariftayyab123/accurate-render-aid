@@ -14,6 +14,8 @@ export interface WorkspaceState {
   city: string;
   market: MarketCode;
   currency: string;
+  /** UI language; options depend on the market (en/hi in India, en/ar in the UAE). */
+  language: "en" | "hi" | "ar";
   outletName: string;
   channels: string[];
   dataMode: "demo" | "empty";
@@ -32,6 +34,7 @@ export const DEFAULT_STATE: WorkspaceState = {
   city: "",
   market: "IN",
   currency: "INR",
+  language: "en",
   outletName: "",
   channels: ["zomato", "swiggy", "direct"],
   dataMode: "demo",
@@ -49,6 +52,7 @@ export const DEMO_STATE: WorkspaceState = {
   city: DEMO_RESTAURANT.city,
   market: "IN",
   currency: "INR",
+  language: "en",
   outletName: DEMO_OUTLETS[0]!.name,
   channels: ["zomato", "swiggy", "direct"],
   dataMode: "demo",
@@ -151,10 +155,13 @@ const DATE_FMT = new Intl.DateTimeFormat("en-IN", {
   timeZone: "UTC",
 });
 
+
 export function rangeLabel(state: WorkspaceState) {
   const range = resolveRange(state);
   if (!range.custom) {
-    return PERIOD_OPTIONS.find((option) => option.days === state.periodDays)?.label ?? "Last 30 days";
+    const days = PERIOD_OPTIONS.find((option) => option.days === state.periodDays)?.days ?? 30;
+    const preset = { en: `Last ${days} days`, hi: `पिछले ${days} दिन`, ar: `آخر ${days} يوماً` };
+    return preset[state.language] ?? preset.en;
   }
   return `${DATE_FMT.format(new Date(range.from))} – ${DATE_FMT.format(new Date(range.to))}`;
 }

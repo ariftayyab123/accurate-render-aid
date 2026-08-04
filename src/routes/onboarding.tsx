@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { MARKETS, marketConfig } from "@/data/markets";
+import { defaultLanguageForMarket } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth";
 import { saveWorkspaceForUser } from "@/lib/workspace-sync";
@@ -65,6 +66,7 @@ function Onboarding() {
     update({
       market: config.code,
       currency: config.currency,
+      language: defaultLanguageForMarket(config.code),
       channels: config.channels.map((channel) => channel.code),
       dataMode: config.demoReady ? state.dataMode : "empty",
     });
