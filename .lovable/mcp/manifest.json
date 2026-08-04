@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://kiosbfwfteuulxbrgolq.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "pixel-perfect-replica",
+      "version": "0.1.0",
+      "title": "Pixel Perfect Replica"
+    },
+    "tools": [
+      {
+        "name": "get_workspace",
+        "title": "Get restaurant workspace",
+        "description": "Read the signed-in owner's restaurant workspace: restaurant name, city, market, currency, outlet, sales channels and onboarding state.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "update_workspace",
+        "title": "Update restaurant workspace",
+        "description": "Update the signed-in owner's restaurant workspace details (restaurant name, city, outlet name, market, currency, sales channels).",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "restaurant_name": {
+              "description": "Restaurant name.",
+              "type": "string",
+              "minLength": 1
+            },
+            "city": {
+              "description": "City the outlet operates in.",
+              "type": "string",
+              "minLength": 1
+            },
+            "outlet_name": {
+              "description": "Outlet or branch name.",
+              "type": "string",
+              "minLength": 1
+            },
+            "market": {
+              "description": "Market: IN (India) or AE (UAE).",
+              "type": "string",
+              "enum": [
+                "IN",
+                "AE"
+              ]
+            },
+            "currency": {
+              "description": "Currency code.",
+              "type": "string",
+              "enum": [
+                "INR",
+                "AED"
+              ]
+            },
+            "channels": {
+              "description": "Sales channels, e.g. zomato, swiggy, direct, talabat, deliveroo.",
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_profit_summary",
+        "title": "Get profit summary",
+        "description": "Summarise sales, platform deductions, food and packaging cost and what the restaurant kept, for the last N days of the demo dataset, with a per-channel breakdown.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "days": {
+              "default": 30,
+              "description": "How many recent days to include.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
