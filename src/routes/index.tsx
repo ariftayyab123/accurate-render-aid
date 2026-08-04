@@ -1,50 +1,70 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, LineChart, ReceiptText, Wallet } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { BrandMark } from "@/components/brand-mark";
+import { SiteHeader } from "@/components/marketing/site-header";
+import { Hero } from "@/components/marketing/hero";
+import { MoneyFlow } from "@/components/marketing/money-flow";
+import { ClosingCta, Faq, Markets, OwnerQuestions, Steps } from "@/components/marketing/sections";
 import { loadDemoWorkspace } from "@/lib/workspace";
+import { siteCopy } from "@/lib/site-copy";
+import { useSiteLanguage } from "@/lib/site-language";
+
+const SITE_URL = "https://accurate-render-aid.lovable.app";
+const TITLE = "Retained — what your restaurant keeps from Zomato, Swiggy and Talabat";
+const DESCRIPTION =
+  "See what is left after app commission, tax on fees, payment charges, ads, discounts and food cost — per channel, per order and per dish, for restaurants in India and the UAE.";
+
+const faqCopy = siteCopy("en").faq;
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Retained — know what your restaurant keeps" },
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESCRIPTION },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: SITE_URL + "/" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: SITE_URL + "/" }],
+    scripts: [
       {
-        name: "description",
-        content:
-          "Upload menu, order and settlement data and see channel-normalised contribution for every order and dish.",
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "Retained",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web",
+          url: SITE_URL + "/",
+          description: DESCRIPTION,
+          audience: {
+            "@type": "Audience",
+            audienceType: "Restaurant and cloud kitchen owners in India and the UAE",
+          },
+        }),
       },
-      { property: "og:title", content: "Retained — know what your restaurant keeps" },
       {
-        property: "og:description",
-        content:
-          "Channel-normalised contribution margin for independent restaurants and cloud kitchens.",
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqCopy.items.map((item) => ({
+            "@type": "Question",
+            name: item.q,
+            acceptedAnswer: { "@type": "Answer", text: item.a },
+          })),
+        }),
       },
     ],
   }),
   component: Landing,
 });
 
-const HIGHLIGHTS = [
-  {
-    icon: ReceiptText,
-    title: "Every deduction, itemised",
-    body: "Commission, GST on fees, payment charges, ad allocation and adjustments — separated per order.",
-  },
-  {
-    icon: LineChart,
-    title: "Channel-normalised margins",
-    body: "Compare what Zomato, Swiggy and your direct channel actually retained, not just what they sold.",
-  },
-  {
-    icon: Wallet,
-    title: "Dish-level contribution",
-    body: "Find the popular dish with a weak margin before you print the next menu.",
-  },
-];
-
 function Landing() {
   const navigate = useNavigate();
+  const { language, offer, setLanguage, dir } = useSiteLanguage();
+  const copy = siteCopy(language);
 
   const openDemo = () => {
     loadDemoWorkspace();
@@ -52,81 +72,29 @@ function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-6">
-          <BrandMark className="size-7" />
-          <span className="text-sm font-semibold">Retained</span>
-          <span className="ml-2 rounded border border-border px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-            Prototype
-          </span>
-          <Button variant="ghost" size="sm" className="ml-auto" onClick={() => navigate({ to: "/auth" })}>
-            Sign in
-          </Button>
-          <Button variant="ghost" size="sm" onClick={openDemo}>
-            View demo workspace
-          </Button>
-        </div>
-      </header>
+    <div className="min-h-screen bg-background" dir={dir} lang={language}>
+      <SiteHeader
+        copy={copy}
+        language={language}
+        offer={offer}
+        onLanguage={setLanguage}
+        onDemo={openDemo}
+      />
 
-      <main className="mx-auto grid max-w-6xl gap-12 px-6 py-14 lg:grid-cols-[1.1fr_0.9fr] lg:py-20">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
-            For independent restaurants, cafés and cloud kitchens
-          </p>
-          <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-            How much money did you actually retain from each channel, order and dish?
-          </h1>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Retained turns your menu, order and settlement files into channel-normalised
-            contribution margin. Every figure opens its own calculation, and nothing is presented
-            as audited profit.
-          </p>
-
-          <dl className="mt-10 grid gap-6 sm:grid-cols-3">
-            {HIGHLIGHTS.map((highlight) => (
-              <div key={highlight.title}>
-                <highlight.icon className="size-4 text-primary" />
-                <dt className="mt-2 text-sm font-medium">{highlight.title}</dt>
-                <dd className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  {highlight.body}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-
-        <div className="rounded-lg border border-border bg-card p-6">
-          <h2 className="text-base font-semibold tracking-tight">Create your workspace</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Free owner account for restaurants in India and the UAE. Your setup is saved to your
-            account.
-          </p>
-          <Button className="mt-5 w-full gap-1.5" onClick={() => navigate({ to: "/auth" })}>
-            Create your account
-            <ArrowRight className="size-4" />
-          </Button>
-
-          <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" />
-            or
-            <span className="h-px flex-1 bg-border" />
-          </div>
-
-          <Button variant="outline" className="w-full" onClick={openDemo}>
-            Load demo restaurant
-          </Button>
-          <p className="mt-3 text-xs text-muted-foreground">
-            Uday Foods, Shastri Nagar Meerut — 431 synthetic orders across July 2026. Figures are
-            test fixtures, not market data.
-          </p>
-        </div>
+      <main>
+        <Hero copy={copy} onDemo={openDemo} />
+        <MoneyFlow copy={copy} />
+        <OwnerQuestions copy={copy} />
+        <Steps copy={copy} />
+        <Markets copy={copy} />
+        <Faq copy={copy} />
+        <ClosingCta copy={copy} onDemo={openDemo} />
       </main>
 
       <footer className="border-t border-border">
-        <div className="mx-auto max-w-6xl px-6 py-6 text-xs text-muted-foreground">
-          Contribution and margin are estimates based on the data you supply. Retained never labels
-          them as net profit.
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-5 py-8 text-xs text-muted-foreground sm:px-8">
+          <span className="display text-sm font-semibold text-foreground">Retained</span>
+          <span className="max-w-2xl leading-relaxed">{copy.footer}</span>
         </div>
       </footer>
     </div>
