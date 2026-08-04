@@ -182,3 +182,10 @@ export const PERIOD_OPTIONS = [
   { days: 14, label: "Last 14 days" },
   { days: 7, label: "Last 7 days" },
 ];
+
+const ANALYSIS_CHANNELS: ChannelCode[] = ["zomato", "swiggy", "direct"];
+
+/** Selected channels the analysis dataset can currently report on. */
+export function analysisChannels(state: WorkspaceState): ChannelCode[] {
+  return ANALYSIS_CHANNELS.filter((code) => state.channels.includes(code));
+}
