@@ -40,6 +40,16 @@ export function defaultLanguageForMarket(market: string): LanguageCode {
 type Dict = Record<string, string>;
 
 const en: Dict = {
+  "kpi.explain": "Show me how this is worked out",
+  "overview.salesCaption": "{orders} orders · average bill {avg}",
+  "overview.discountsCaption": "{pct} of your sales went back to customers as your own offers.",
+  "overview.appsTookCaption": "{pct} of your sales — commission, tax on it, payment and ad charges.",
+  "overview.foodCostCaption": "{pct} of sales — what it cost you to cook and pack these orders.",
+  "overview.confidenceHint": "Numbers are {pct} from uploaded records",
+  "overview.insight": "You keep {bestPct} on {best} orders but only {worstPct} on {worst}. On {worst} you spent {ads} on ads and {discounts} on your own discounts — check those before spending more there.",
+  "overview.showTable": "Show the full number table",
+  "overview.sampleNote": "All figures are sample data made for this prototype, not real platform data.",
+  "overview.sold": "sold",
   "overview.youKept": "You kept this much",
   "overview.youKeptCaption": "Out of {sales} in sales, you kept about {per} of every {hundred} after apps, discounts and food cost. Rent, salaries and electricity still come out of this.",
   "overview.perHundred": "Money kept per {hundred}",
@@ -103,6 +113,16 @@ const en: Dict = {
 };
 
 const hi: Dict = {
+  "kpi.explain": "यह कैसे निकला, दिखाइए",
+  "overview.salesCaption": "{orders} ऑर्डर · औसत बिल {avg}",
+  "overview.discountsCaption": "आपकी बिक्री का {pct} हिस्सा आपकी अपनी छूट के रूप में ग्राहकों को वापस गया।",
+  "overview.appsTookCaption": "आपकी बिक्री का {pct} — कमीशन, उस पर टैक्स, पेमेंट और विज्ञापन शुल्क।",
+  "overview.foodCostCaption": "बिक्री का {pct} — इन ऑर्डर को बनाने और पैक करने की लागत।",
+  "overview.confidenceHint": "{pct} आँकड़े अपलोड किए गए रिकॉर्ड से हैं",
+  "overview.insight": "{best} के ऑर्डर पर आपके पास {bestPct} बचता है, पर {worst} पर सिर्फ़ {worstPct}। {worst} पर आपने {ads} विज्ञापन और {discounts} अपनी छूट पर खर्च किए — वहाँ और खर्च करने से पहले इन्हें देखें।",
+  "overview.showTable": "पूरी तालिका देखें",
+  "overview.sampleNote": "सभी आँकड़े इस प्रोटोटाइप के लिए बनाए गए नमूना डेटा हैं, असली प्लेटफ़ॉर्म डेटा नहीं।",
+  "overview.sold": "बिके",
   "overview.youKept": "आपके पास इतना बचा",
   "overview.youKeptCaption": "{sales} की बिक्री में से, ऐप्स, छूट और खाने की लागत के बाद हर {hundred} में लगभग {per} आपके पास बचे। किराया, तनख़्वाह और बिजली इसी में से जाते हैं।",
   "overview.perHundred": "हर {hundred} में बचत",
@@ -166,6 +186,16 @@ const hi: Dict = {
 };
 
 const ar: Dict = {
+  "kpi.explain": "اعرض لي كيف تم حساب ذلك",
+  "overview.salesCaption": "{orders} طلب · متوسط الفاتورة {avg}",
+  "overview.discountsCaption": "{pct} من مبيعاتك عاد للعملاء كخصومات تحمّلتها بنفسك.",
+  "overview.appsTookCaption": "{pct} من مبيعاتك — عمولة وضريبة عليها ورسوم دفع وإعلانات.",
+  "overview.foodCostCaption": "{pct} من المبيعات — تكلفة تحضير وتغليف هذه الطلبات.",
+  "overview.confidenceHint": "{pct} من الأرقام مصدرها ملفات مرفوعة",
+  "overview.insight": "يبقى لك {bestPct} من طلبات {best} مقابل {worstPct} فقط على {worst}. على {worst} أنفقت {ads} على الإعلانات و{discounts} على خصوماتك — راجعها قبل الإنفاق أكثر هناك.",
+  "overview.showTable": "عرض الجدول الكامل",
+  "overview.sampleNote": "جميع الأرقام بيانات تجريبية أُنشئت لهذا النموذج وليست بيانات منصات حقيقية.",
+  "overview.sold": "مُباع",
   "overview.youKept": "هذا ما بقي لك",
   "overview.youKeptCaption": "من أصل {sales} مبيعات، بقي لك نحو {per} من كل {hundred} بعد التطبيقات والخصومات وتكلفة الطعام. الإيجار والرواتب والكهرباء تُخصم من هذا المبلغ.",
   "overview.perHundred": "المتبقي من كل {hundred}",

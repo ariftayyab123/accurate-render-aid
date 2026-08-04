@@ -123,7 +123,7 @@ function Overview() {
           label={t("overview.perHundred", { hundred: `${currencySymbol()}100` })}
           value={formatPercent(totals.margin)}
           caption={t("overview.perHundredCaption", { per: `${currencySymbol()}${perHundred}`, hundred: `${currencySymbol()}100` })}
-          hint={`Numbers are ${formatPercent(confidence, 0)} from uploaded records`}
+          hint={t("overview.confidenceHint", { pct: formatPercent(confidence, 0) })}
           tone="positive"
           formula="Estimated contribution ÷ revenue basis"
           rows={[
@@ -143,7 +143,7 @@ function Overview() {
         <KpiCard
           label={t("overview.totalSales")}
           value={formatCurrency(totals.grossOrderValue)}
-          caption={`${totals.orders} orders · average bill ${formatCurrency(totals.averageOrderValue)}`}
+          caption={t("overview.salesCaption", { orders: totals.orders, avg: formatCurrency(totals.averageOrderValue) })}
           formula="Item selling value + customer-facing packaging charge + other merchant charges"
           rows={[
             { label: "Orders in period", value: String(totals.orders), source: "Imported" },
@@ -162,7 +162,7 @@ function Overview() {
         <KpiCard
           label={t("overview.discounts")}
           value={formatCurrency(totals.restaurantDiscounts)}
-          caption={`${formatPercent(totals.restaurantDiscounts / totals.grossOrderValue)} of your sales went back to customers as your own offers.`}
+          caption={t("overview.discountsCaption", { pct: formatPercent(totals.restaurantDiscounts / totals.grossOrderValue) })}
           tone="negative"
           formula="Discounts you funded, plus refunded item value, removed from gross order value"
           rows={[
@@ -182,7 +182,7 @@ function Overview() {
         <KpiCard
           label={t("overview.appsTook")}
           value={formatCurrency(totals.platformDeductions)}
-          caption={`${formatPercent(totals.platformDeductions / totals.revenueBasis)} of your sales — commission, GST on it, payment and ad charges.`}
+          caption={t("overview.appsTookCaption", { pct: formatPercent(totals.platformDeductions / totals.revenueBasis) })}
           tone="negative"
           formula="Service fee + GST on platform services + payment fee + ad allocation + fulfilment + adjustments"
           rows={[
@@ -218,7 +218,7 @@ function Overview() {
         <KpiCard
           label={t("overview.foodCost")}
           value={formatCurrency(totals.foodAndPackaging)}
-          caption={`${formatPercent(totals.foodAndPackaging / totals.revenueBasis)} of sales — what it cost you to cook and pack these orders.`}
+          caption={t("overview.foodCostCaption", { pct: formatPercent(totals.foodAndPackaging / totals.revenueBasis) })}
           formula="Sum of item food cost and packaging cost across all order lines"
           rows={[
             { label: "Recipe cost basis", value: "Menu master", source: "Manual" },
@@ -237,12 +237,14 @@ function Overview() {
           <Lightbulb className="mt-0.5 size-5 shrink-0 text-primary" />
           <p className="text-sm leading-relaxed">
             <span className="font-semibold">{t("overview.worthALook")} </span>
-            You keep {formatPercent(best.margin)} on {channelLabel(best.channel)} orders but only{" "}
-            {formatPercent(worst.margin)} on {channelLabel(worst.channel)}. On{" "}
-            {channelLabel(worst.channel)} you spent{" "}
-            {formatCurrency(worst.deductionBreakdown.adAllocation)} on ads and{" "}
-            {formatCurrency(worst.restaurantDiscounts)} on your own discounts — check those before
-            spending more there.
+            {t("overview.insight", {
+              bestPct: formatPercent(best.margin),
+              best: channelLabel(best.channel),
+              worstPct: formatPercent(worst.margin),
+              worst: channelLabel(worst.channel),
+              ads: formatCurrency(worst.deductionBreakdown.adAllocation),
+              discounts: formatCurrency(worst.restaurantDiscounts),
+            })}
           </p>
         </section>
       ) : null}
@@ -285,7 +287,7 @@ function Overview() {
 
         <Collapsible>
           <CollapsibleTrigger className="w-full border-t border-border px-5 py-3 text-left text-sm font-medium text-primary hover:underline">
-            Show the full number table
+            {t("overview.showTable")}
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="overflow-x-auto border-t border-border">
@@ -381,7 +383,7 @@ function Overview() {
           rows={strongest.map((row) => ({
             name: row.item.name,
             primary: formatCurrency(row.contribution),
-            secondary: `${row.unitsSold} sold · ${formatPercent(row.margin)}`,
+            secondary: `${row.unitsSold} ${t("overview.sold")} · ${formatPercent(row.margin)}`,
           }))}
         />
         <ContributorList
@@ -390,7 +392,7 @@ function Overview() {
           rows={weakest.map((row) => ({
             name: row.item.name,
             primary: formatPercent(row.margin),
-            secondary: `${row.unitsSold} sold · ${formatCurrency(row.contribution)} ${t("overview.kept")}`,
+            secondary: `${row.unitsSold} ${t("overview.sold")} · ${formatCurrency(row.contribution)} ${t("overview.kept")}`,
           }))}
         />
       </section>
@@ -400,7 +402,7 @@ function Overview() {
           {t("overview.beforeFixed")}
         </Badge>
         <p className="text-xs text-muted-foreground">
-          All figures are sample data made for this prototype, not real Zomato or Swiggy data.
+          {t("overview.sampleNote")}
         </p>
       </div>
     </div>

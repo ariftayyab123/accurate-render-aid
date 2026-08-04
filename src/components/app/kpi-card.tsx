@@ -9,6 +9,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 export interface CalcRow {
   label: string;
@@ -89,7 +90,7 @@ export function KpiCard({
         {hint ? <span className="text-xs text-muted-foreground">{hint}</span> : null}
         <span className="mt-auto inline-flex items-center gap-1 pt-3 text-xs font-medium text-primary">
           <Calculator className="size-3.5" />
-          Show me how this is worked out
+          {t("kpi.explain")}
         </span>
       </button>
 
