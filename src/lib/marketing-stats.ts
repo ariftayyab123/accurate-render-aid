@@ -52,6 +52,7 @@ export const DEMO = {
   sales: totals.grossOrderValue,
   kept: totals.contribution,
   keptMargin: totals.margin,
+  keptShare: totals.contribution / totals.grossOrderValue,
   averageOrder: totals.averageOrderValue,
   platformCut: totals.platformDeductions,
   platformCutShare: totals.platformDeductions / totals.grossOrderValue,

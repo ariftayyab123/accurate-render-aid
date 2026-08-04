@@ -69,7 +69,7 @@ export function Hero({ copy, onDemo }: { copy: SiteCopy; onDemo: () => void }) {
             <div className="h-3 overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full rounded-full bg-primary"
-                style={{ width: `${(DEMO.keptMargin * 100).toFixed(1)}%` }}
+                style={{ width: `${(DEMO.keptShare * 100).toFixed(1)}%` }}
               />
             </div>
 
@@ -79,7 +79,7 @@ export function Hero({ copy, onDemo }: { copy: SiteCopy; onDemo: () => void }) {
                 {money(DEMO.kept)}
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                {pct(DEMO.keptMargin)} {copy.hero.ofSales}
+                {pct(DEMO.keptShare)} {copy.hero.ofSales}
               </p>
             </div>
           </div>
