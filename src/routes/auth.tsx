@@ -147,7 +147,7 @@ function AuthPage() {
           <div className="relative flex h-full flex-col justify-between gap-12">
             <div>
               <div className="flex items-center gap-2">
-                <BrandMark className="size-8 shrink-0" />
+                <BrandMark className="size-9 shrink-0 bg-primary-foreground p-0.5" />
                 <span className="display text-2xl font-bold tracking-tight">Retained</span>
               </div>
 
