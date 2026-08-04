@@ -11,16 +11,6 @@ import { Button } from "@/components/ui/button";
 import { DEMO, money, pct } from "@/lib/marketing-stats";
 import type { SiteCopy } from "@/lib/site-copy";
 
-/** One headline figure per owner question, taken from the demo dataset. */
-function questionStats() {
-  const direct = DEMO.channels.find((row) => row.code === "direct")!;
-  return [
-    pct(DEMO.zomatoCut),
-    money(Math.round((DEMO.weakDish.margin * 100) / 100) * 0 + DEMO.weakDish.margin * 100) ,
-    pct(direct.keep),
-  ];
-}
-
 export function OwnerQuestions({ copy }: { copy: SiteCopy }) {
   const direct = DEMO.channels.find((row) => row.code === "direct")!;
   const stats = [pct(DEMO.zomatoCut), pct(DEMO.weakDish.margin), pct(direct.keep)];
