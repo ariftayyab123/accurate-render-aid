@@ -1,4 +1,4 @@
-import { auth, defineMcp } from "@lovable.dev/mcp-js";
+import { auth, defineMcp, type AnyToolDefinition } from "@lovable.dev/mcp-js";
 
 import getProfitSummary from "./tools/get-profit-summary";
 import getWorkspace from "./tools/get-workspace";
@@ -16,5 +16,5 @@ export default defineMcp({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
-  tools: [getWorkspace, updateWorkspace, getProfitSummary],
+  tools: [getWorkspace, updateWorkspace, getProfitSummary] as unknown as AnyToolDefinition[],
 });
