@@ -99,7 +99,7 @@ function AuthPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface p-4 sm:p-8">
-      <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-border bg-card shadow-[0_32px_64px_-24px_color-mix(in_oklab,var(--primary)_28%,transparent)] md:grid-cols-[42fr_58fr]">
+      <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-border bg-card shadow-2xl md:grid-cols-[42fr_58fr]">
         {/* Brand / value panel */}
         <div className="relative overflow-hidden bg-primary p-10 text-primary-foreground md:p-14">
           <div className="pointer-events-none absolute -right-32 -top-32 size-64 rounded-full bg-primary-foreground/15 blur-3xl" />
