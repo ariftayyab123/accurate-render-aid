@@ -1,26 +1,19 @@
-import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 
-import { supabase } from "@/integrations/supabase/client";
+import { selectAuthStatus, selectSession, selectUser, useAppSelector } from "@/store";
 
 export interface SessionState {
   session: Session | null;
   loading: boolean;
 }
 
-/** Client-side session state, kept fresh by Supabase auth events. */
+/** Session state from the Redux store, fed by the single auth listener. */
 export function useSession(): SessionState {
-  const [state, setState] = useState<SessionState>({ session: null, loading: true });
+  const session = useAppSelector(selectSession);
+  const status = useAppSelector(selectAuthStatus);
+  return { session, loading: status === "loading" };
+}
 
-  useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      setState({ session, loading: false });
-    });
-    supabase.auth.getSession().then(({ data: current }) => {
-      setState({ session: current.session, loading: false });
-    });
-    return () => data.subscription.unsubscribe();
-  }, []);
-
-  return state;
+export function useAuthUser() {
+  return useAppSelector(selectUser);
 }

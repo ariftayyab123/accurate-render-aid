@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, IndianRupee, Loader2, ShieldCheck } from "lucide-react";
+import { ArrowRight, Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PasswordField } from "@/components/password-field";
+import { BrandMark } from "@/components/brand-mark";
 import { cn } from "@/lib/utils";
 import { lovable } from "@/integrations/lovable/index";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
+import { NEXT_KEY } from "@/routes/auth_.callback";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>): { next?: string } =>
@@ -51,6 +54,8 @@ function AuthPage() {
   const [mode, setMode] = useState("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [fullName, setFullName] = useState("");
   const [busy, setBusy] = useState(false);
   const [checkEmail, setCheckEmail] = useState(false);
@@ -73,6 +78,15 @@ function AuthPage() {
 
   const signUp = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (password.length < 8) {
+      setPasswordError("Use at least 8 characters.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setPasswordError("Both passwords must match.");
+      return;
+    }
+    setPasswordError("");
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -100,12 +114,21 @@ function AuthPage() {
 
   const googleSignIn = async () => {
     setBusy(true);
+    try {
+      if (safeNext) window.sessionStorage.setItem(NEXT_KEY, safeNext);
+      else window.sessionStorage.removeItem(NEXT_KEY);
+    } catch {
+      /* sessionStorage can be blocked; sign-in still works, we just land on /app */
+    }
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: safeNext ? `${window.location.origin}${safeNext}` : window.location.origin,
+      // Must be a public same-origin URL — never a protected route.
+      redirect_uri: `${window.location.origin}/auth/callback`,
     });
     if (result.error) {
       setBusy(false);
-      toast.error("Google sign-in failed", { description: String(result.error.message ?? "") });
+      toast.error("Google sign-in failed", {
+        description: String((result.error as { message?: string }).message ?? result.error),
+      });
       return;
     }
     if (result.redirected) return;
@@ -124,9 +147,7 @@ function AuthPage() {
           <div className="relative flex h-full flex-col justify-between gap-12">
             <div>
               <div className="flex items-center gap-2">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground text-primary">
-                  <IndianRupee className="size-4" />
-                </span>
+                <BrandMark className="size-8 shrink-0" />
                 <span className="display text-2xl font-bold tracking-tight">Retained</span>
               </div>
 
@@ -233,17 +254,12 @@ function AuthPage() {
                         onChange={(event) => setEmail(event.target.value)}
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="signin-password">Password</Label>
-                      <Input
-                        id="signin-password"
-                        type="password"
-                        required
-                        autoComplete="current-password"
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                      />
-                    </div>
+                    <PasswordField
+                      label="Password"
+                      value={password}
+                      onChange={setPassword}
+                      autoComplete="current-password"
+                    />
                     <Button type="submit" className="h-12 w-full gap-1.5 rounded-xl" disabled={busy}>
                       {busy ? <Loader2 className="size-4 animate-spin" /> : null}
                       Sign in
@@ -274,19 +290,29 @@ function AuthPage() {
                         onChange={(event) => setEmail(event.target.value)}
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="signup-password">Password</Label>
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        required
-                        minLength={8}
-                        autoComplete="new-password"
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                      />
-                      <p className="text-xs text-muted-foreground">At least 8 characters.</p>
-                    </div>
+                    <PasswordField
+                      label="Password"
+                      value={password}
+                      onChange={(value) => {
+                        setPassword(value);
+                        setPasswordError("");
+                      }}
+                      autoComplete="new-password"
+                      minLength={8}
+                      hint="At least 8 characters."
+                    />
+                    <PasswordField
+                      label="Confirm password"
+                      value={confirmPassword}
+                      onChange={(value) => {
+                        setConfirmPassword(value);
+                        setPasswordError("");
+                      }}
+                      autoComplete="new-password"
+                      minLength={8}
+                      error={passwordError}
+                      hint="Type the same password again."
+                    />
                     <Button type="submit" className="h-12 w-full gap-1.5 rounded-xl" disabled={busy}>
                       {busy ? <Loader2 className="size-4 animate-spin" /> : null}
                       Create account

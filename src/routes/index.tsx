@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, IndianRupee, LineChart, ReceiptText, Wallet } from "lucide-react";
+import { ArrowRight, LineChart, ReceiptText, Wallet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { BrandMark } from "@/components/brand-mark";
 import { loadDemoWorkspace } from "@/lib/workspace";
 
 export const Route = createFileRoute("/")({
@@ -54,9 +55,7 @@ function Landing() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-6">
-          <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <IndianRupee className="size-4" />
-          </span>
+          <BrandMark className="size-7" />
           <span className="text-sm font-semibold">Retained</span>
           <span className="ml-2 rounded border border-border px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
             Prototype
