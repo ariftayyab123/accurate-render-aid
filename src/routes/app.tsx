@@ -7,6 +7,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useSession } from "@/lib/auth";
 import { useWorkspaceLoader } from "@/lib/workspace-sync";
 import { useHydrated, useWorkspace } from "@/lib/workspace";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -19,6 +20,13 @@ function AppLayout() {
   const { session, loading } = useSession();
   const user = session?.user;
   const workspaceLoaded = useWorkspaceLoader(user?.id, user?.email ?? "");
+  const { dir, option } = useI18n();
+
+  useEffect(() => {
+    document.documentElement.setAttribute("lang", option.locale);
+    document.documentElement.setAttribute("dir", dir);
+    return () => document.documentElement.setAttribute("dir", "ltr");
+  }, [dir, option.locale]);
 
   useEffect(() => {
     if (!hydrated || loading) return;
