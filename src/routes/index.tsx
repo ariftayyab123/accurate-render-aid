@@ -1,11 +1,8 @@
-import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, IndianRupee, LineChart, ReceiptText, Wallet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { loadDemoWorkspace, updateWorkspace } from "@/lib/workspace";
+import { loadDemoWorkspace } from "@/lib/workspace";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -47,13 +44,6 @@ const HIGHLIGHTS = [
 
 function Landing() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-
-  const startSetup = (event: React.FormEvent) => {
-    event.preventDefault();
-    updateWorkspace({ signedIn: true, email: email.trim() || "owner@restaurant.in" });
-    navigate({ to: "/onboarding" });
-  };
 
   const openDemo = () => {
     loadDemoWorkspace();
@@ -71,7 +61,10 @@ function Landing() {
           <span className="ml-2 rounded border border-border px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
             Prototype
           </span>
-          <Button variant="ghost" size="sm" className="ml-auto" onClick={openDemo}>
+          <Button variant="ghost" size="sm" className="ml-auto" onClick={() => navigate({ to: "/auth" })}>
+            Sign in
+          </Button>
+          <Button variant="ghost" size="sm" onClick={openDemo}>
             View demo workspace
           </Button>
         </div>
@@ -107,24 +100,13 @@ function Landing() {
         <div className="rounded-lg border border-border bg-card p-6">
           <h2 className="text-base font-semibold tracking-tight">Create your workspace</h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            Prototype sign-in. No password, no data leaves this browser.
+            Free owner account for restaurants in India and the UAE. Your setup is saved to your
+            account.
           </p>
-          <form className="mt-5 space-y-4" onSubmit={startSetup}>
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Work email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="owner@restaurant.in"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-              />
-            </div>
-            <Button type="submit" className="w-full gap-1.5">
-              Start setup
-              <ArrowRight className="size-4" />
-            </Button>
-          </form>
+          <Button className="mt-5 w-full gap-1.5" onClick={() => navigate({ to: "/auth" })}>
+            Create your account
+            <ArrowRight className="size-4" />
+          </Button>
 
           <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
             <span className="h-px flex-1 bg-border" />

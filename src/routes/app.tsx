@@ -4,6 +4,8 @@ import { Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppSidebar } from "@/components/app/app-sidebar";
 import { TopBar } from "@/components/app/top-bar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { useSession } from "@/lib/auth";
+import { useWorkspaceLoader } from "@/lib/workspace-sync";
 import { useHydrated, useWorkspace } from "@/lib/workspace";
 
 export const Route = createFileRoute("/app")({
@@ -14,17 +16,23 @@ function AppLayout() {
   const { state } = useWorkspace();
   const hydrated = useHydrated();
   const navigate = useNavigate();
+  const { session, loading } = useSession();
+  const user = session?.user;
+  const workspaceLoaded = useWorkspaceLoader(user?.id, user?.email ?? "");
 
   useEffect(() => {
-    if (!hydrated) return;
-    if (!state.signedIn) {
-      navigate({ to: "/" });
-    } else if (!state.onboardingComplete) {
+    if (!hydrated || loading) return;
+    if (!session) {
+      // Demo workspaces stay browser-only and need no account.
+      if (!state.signedIn) navigate({ to: "/auth" });
+      return;
+    }
+    if (workspaceLoaded && !state.onboardingComplete) {
       navigate({ to: "/onboarding" });
     }
-  }, [hydrated, state.signedIn, state.onboardingComplete, navigate]);
+  }, [hydrated, loading, session, workspaceLoaded, state.signedIn, state.onboardingComplete, navigate]);
 
-  if (!hydrated) {
+  if (!hydrated || loading || (session && !workspaceLoaded)) {
     return <div className="min-h-screen bg-background" />;
   }
 

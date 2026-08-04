@@ -36,7 +36,7 @@ import {
   revenueBasis,
 } from "@/lib/metrics";
 import { cn } from "@/lib/utils";
-import { useDataset, useWorkspace } from "@/lib/workspace";
+import { analysisChannels, useDataset, useWorkspace } from "@/lib/workspace";
 
 export const Route = createFileRoute("/app/orders")({
   head: () => ({
@@ -127,7 +127,7 @@ function OrdersPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All channels</SelectItem>
-            {state.channels.map((code) => (
+            {analysisChannels(state).map((code) => (
               <SelectItem key={code} value={code}>
                 {CHANNEL_LABELS[code]}
               </SelectItem>
