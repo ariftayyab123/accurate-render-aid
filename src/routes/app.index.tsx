@@ -17,8 +17,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CHANNEL_LABELS } from "@/data/types";
-import { formatCurrency, formatPercent } from "@/lib/format";
+import { currencySymbol, formatCurrency, formatPercent } from "@/lib/format";
+import { useI18n } from "@/lib/i18n";
 import { dataConfidence, summarise, summariseByChannel, summariseByItem } from "@/lib/metrics";
 import { analysisChannels, rangeDays, rangeLabel, useDataset, useWorkspace } from "@/lib/workspace";
 
@@ -44,6 +44,7 @@ export const Route = createFileRoute("/app/")({
 function Overview() {
   const { state } = useWorkspace();
   const orders = useDataset();
+  const { t, channelLabel } = useI18n();
   const totals = summarise(orders);
   const channels = summariseByChannel(orders, analysisChannels(state)).filter(
     (row) => row.orders > 0,
@@ -65,9 +66,9 @@ function Overview() {
   const header = (
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Your money · {rangeLabel(state)}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{t("overview.title")} · {rangeLabel(state)}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {totals.orders} orders over {days} days · every number can be opened up
+          {t("overview.subtitle", { orders: totals.orders, days })}
         </p>
       </div>
       <DateRangeFilter />
@@ -140,7 +141,7 @@ function Overview() {
 
       <section className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
-          label="Total sales"
+          label={t("overview.totalSales")}
           value={formatCurrency(totals.grossOrderValue)}
           caption={`${totals.orders} orders · average bill ${formatCurrency(totals.averageOrderValue)}`}
           formula="Item selling value + customer-facing packaging charge + other merchant charges"
@@ -159,7 +160,7 @@ function Overview() {
           ]}
         />
         <KpiCard
-          label="Discounts you paid for"
+          label={t("overview.discounts")}
           value={formatCurrency(totals.restaurantDiscounts)}
           caption={`${formatPercent(totals.restaurantDiscounts / totals.grossOrderValue)} of your sales went back to customers as your own offers.`}
           tone="negative"
@@ -179,7 +180,7 @@ function Overview() {
           ]}
         />
         <KpiCard
-          label="What the apps took"
+          label={t("overview.appsTook")}
           value={formatCurrency(totals.platformDeductions)}
           caption={`${formatPercent(totals.platformDeductions / totals.revenueBasis)} of your sales — commission, GST on it, payment and ad charges.`}
           tone="negative"
@@ -215,7 +216,7 @@ function Overview() {
           note="TDS and TCS are tracked in the settlement view and never reduce contribution here."
         />
         <KpiCard
-          label="Food and packing cost"
+          label={t("overview.foodCost")}
           value={formatCurrency(totals.foodAndPackaging)}
           caption={`${formatPercent(totals.foodAndPackaging / totals.revenueBasis)} of sales — what it cost you to cook and pack these orders.`}
           formula="Sum of item food cost and packaging cost across all order lines"
@@ -235,10 +236,10 @@ function Overview() {
         <section className="mt-3 flex gap-3 rounded-xl border border-border bg-accent px-5 py-4">
           <Lightbulb className="mt-0.5 size-5 shrink-0 text-primary" />
           <p className="text-sm leading-relaxed">
-            <span className="font-semibold">Worth a look: </span>
-            You keep {formatPercent(best.margin)} on {CHANNEL_LABELS[best.channel]} orders but only{" "}
-            {formatPercent(worst.margin)} on {CHANNEL_LABELS[worst.channel]}. On{" "}
-            {CHANNEL_LABELS[worst.channel]} you spent{" "}
+            <span className="font-semibold">{t("overview.worthALook")} </span>
+            You keep {formatPercent(best.margin)} on {channelLabel(best.channel)} orders but only{" "}
+            {formatPercent(worst.margin)} on {channelLabel(worst.channel)}. On{" "}
+            {channelLabel(worst.channel)} you spent{" "}
             {formatCurrency(worst.deductionBreakdown.adAllocation)} on ads and{" "}
             {formatCurrency(worst.restaurantDiscounts)} on your own discounts — check those before
             spending more there.
@@ -249,13 +250,13 @@ function Overview() {
       <section className="mt-3 rounded-xl border border-border bg-card">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-5 py-4">
           <div>
-            <h2 className="text-base font-semibold">Where your orders came from</h2>
+            <h2 className="text-base font-semibold">{t("overview.ordersFrom")}</h2>
             <p className="text-xs text-muted-foreground">
-              How much of every ₹100 you keep on each app
+              {t("overview.keepRate").replace("100", `${currencySymbol()}100`)}
             </p>
           </div>
           <Link to="/app/orders" className="text-sm font-medium text-primary hover:underline">
-            See all orders
+            {t("overview.seeOrders")}
           </Link>
         </div>
 
@@ -263,7 +264,7 @@ function Overview() {
           {channels.map((row) => (
             <div key={row.channel} className="rounded-xl border border-border bg-surface p-4">
               <div className="flex items-baseline justify-between gap-2">
-                <p className="font-medium">{CHANNEL_LABELS[row.channel]}</p>
+                <p className="font-medium">{channelLabel(row.channel)}</p>
                 <p className="display text-xl font-semibold tabular">{formatPercent(row.margin)}</p>
               </div>
               <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
@@ -273,9 +274,9 @@ function Overview() {
                 />
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                {row.orders} orders · {formatCurrency(row.grossOrderValue)} sales ·{" "}
+                {row.orders} {t("overview.orders")} · {formatCurrency(row.grossOrderValue)} {t("overview.sales")} ·{" "}
                 <span className="font-medium text-foreground">
-                  {formatCurrency(row.contribution)} kept
+                  {formatCurrency(row.contribution)} {t("overview.kept")}
                 </span>
               </p>
             </div>
@@ -306,7 +307,7 @@ function Overview() {
             <TableBody>
               {channels.map((row) => (
                 <TableRow key={row.channel}>
-                  <TableCell className="font-medium">{CHANNEL_LABELS[row.channel]}</TableCell>
+                  <TableCell className="font-medium">{channelLabel(row.channel)}</TableCell>
                   <TableCell className="text-right">{row.orders}</TableCell>
                   <TableCell className="text-right">{formatCurrency(row.grossOrderValue)}</TableCell>
                   <TableCell className="text-right">
@@ -389,7 +390,7 @@ function Overview() {
           rows={weakest.map((row) => ({
             name: row.item.name,
             primary: formatPercent(row.margin),
-            secondary: `${row.unitsSold} sold · ${formatCurrency(row.contribution)} kept`,
+            secondary: `${row.unitsSold} sold · ${formatCurrency(row.contribution)} {t("overview.kept")}`,
           }))}
         />
       </section>
