@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import { marketConfig, type MarketCode } from "@/data/markets";
+import { setActiveFormat } from "@/lib/format";
 import { useWorkspace } from "@/lib/workspace";
 
 export type LanguageCode = "en" | "hi" | "ar";
@@ -220,6 +221,9 @@ export function useI18n() {
     ? (state.language as LanguageCode)
     : available[0]!.code;
   const option = LANGUAGES[language];
+
+  // Keep currency/date formatting in sync with the active market + language.
+  setActiveFormat(state.currency || market.currency, option.locale);
 
   return useMemo(
     () => ({
