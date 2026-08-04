@@ -20,7 +20,7 @@ import {
 import { CHANNEL_LABELS } from "@/data/types";
 import { formatCurrency, formatPercent } from "@/lib/format";
 import { dataConfidence, summarise, summariseByChannel, summariseByItem } from "@/lib/metrics";
-import { rangeDays, rangeLabel, useDataset, useWorkspace } from "@/lib/workspace";
+import { analysisChannels, rangeDays, rangeLabel, useDataset, useWorkspace } from "@/lib/workspace";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({
@@ -45,7 +45,9 @@ function Overview() {
   const { state } = useWorkspace();
   const orders = useDataset();
   const totals = summarise(orders);
-  const channels = summariseByChannel(orders, state.channels).filter((row) => row.orders > 0);
+  const channels = summariseByChannel(orders, analysisChannels(state)).filter(
+    (row) => row.orders > 0,
+  );
   const items = summariseByItem(orders).filter((row) => row.unitsSold > 0);
   const confidence = dataConfidence(orders);
   const days = rangeDays(state);
