@@ -1,127 +1,45 @@
-import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ANALYSIS_PERIOD, DEMO_ORDERS } from "@/data/orders";
-import { DEMO_OUTLETS, DEMO_RESTAURANT } from "@/data/menu";
 import type { ChannelCode, Order } from "@/data/types";
-import type { MarketCode } from "@/data/markets";
+import { selectChannels, selectHydrated, selectWorkspace, store, useAppSelector } from "@/store";
+import {
+  DEFAULT_STATE,
+  DEMO_STATE,
+  loadDemoWorkspace as loadDemoAction,
+  patchWorkspace,
+  resetWorkspace as resetAction,
+  type WorkspaceState,
+} from "@/store/workspace-slice";
 
-export interface WorkspaceState {
-  signedIn: boolean;
-  email: string;
-  onboardingStep: number;
-  onboardingComplete: boolean;
-  restaurantName: string;
-  city: string;
-  market: MarketCode;
-  currency: string;
-  /** UI language; options depend on the market (en/hi in India, en/ar in the UAE). */
-  language: "en" | "hi" | "ar";
-  outletName: string;
-  channels: string[];
-  dataMode: "demo" | "empty";
-  periodDays: number;
-  /** ISO date (yyyy-mm-dd) custom range. When both are set they override periodDays. */
-  rangeStart: string;
-  rangeEnd: string;
-}
-
-export const DEFAULT_STATE: WorkspaceState = {
-  signedIn: false,
-  email: "",
-  onboardingStep: 0,
-  onboardingComplete: false,
-  restaurantName: "",
-  city: "",
-  market: "IN",
-  currency: "INR",
-  language: "en",
-  outletName: "",
-  channels: ["zomato", "swiggy", "direct"],
-  dataMode: "demo",
-  periodDays: 30,
-  rangeStart: "",
-  rangeEnd: "",
-};
-
-export const DEMO_STATE: WorkspaceState = {
-  signedIn: true,
-  email: "uday@udayfoods.in",
-  onboardingStep: 4,
-  onboardingComplete: true,
-  restaurantName: DEMO_RESTAURANT.name,
-  city: DEMO_RESTAURANT.city,
-  market: "IN",
-  currency: "INR",
-  language: "en",
-  outletName: DEMO_OUTLETS[0]!.name,
-  channels: ["zomato", "swiggy", "direct"],
-  dataMode: "demo",
-  periodDays: 30,
-  rangeStart: "",
-  rangeEnd: "",
-};
-
-const STORAGE_KEY = "rpi.workspace.v1";
-
-let cache: WorkspaceState | null = null;
-const listeners = new Set<() => void>();
-
-function read(): WorkspaceState {
-  if (typeof window === "undefined") return DEFAULT_STATE;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_STATE;
-    return { ...DEFAULT_STATE, ...(JSON.parse(raw) as Partial<WorkspaceState>) };
-  } catch {
-    return DEFAULT_STATE;
-  }
-}
-
-function getSnapshot(): WorkspaceState {
-  if (!cache) cache = read();
-  return cache;
-}
-
-function getServerSnapshot(): WorkspaceState {
-  return DEFAULT_STATE;
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
+export type { WorkspaceState };
+export { DEFAULT_STATE, DEMO_STATE };
 
 export function updateWorkspace(patch: Partial<WorkspaceState>) {
-  cache = { ...getSnapshot(), ...patch };
-  if (typeof window !== "undefined") {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
-  }
-  listeners.forEach((listener) => listener());
+  store.dispatch(patchWorkspace(patch));
 }
 
 export function resetWorkspace() {
-  cache = DEFAULT_STATE;
-  if (typeof window !== "undefined") window.localStorage.removeItem(STORAGE_KEY);
-  listeners.forEach((listener) => listener());
+  store.dispatch(resetAction());
 }
 
 export function loadDemoWorkspace() {
-  updateWorkspace(DEMO_STATE);
+  store.dispatch(loadDemoAction());
 }
 
 export function useWorkspace() {
-  const state = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const state = useAppSelector(selectWorkspace);
   const update = useCallback((patch: Partial<WorkspaceState>) => updateWorkspace(patch), []);
   return { state, update, reset: resetWorkspace, loadDemo: loadDemoWorkspace };
 }
 
 /** True only after client hydration, so stored state is never read during SSR render. */
 export function useHydrated() {
-  return useSyncExternalStore(
-    subscribe,
-    () => true,
-    () => false,
-  );
+  const storeHydrated = useAppSelector(selectHydrated);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  // The first client render must match the server render, so gate on mount too.
+  return mounted && storeHydrated;
 }
 
 const PERIOD_END = new Date(`${ANALYSIS_PERIOD.end}T23:59:59Z`).getTime();
@@ -155,7 +73,6 @@ const DATE_FMT = new Intl.DateTimeFormat("en-IN", {
   timeZone: "UTC",
 });
 
-
 export function rangeLabel(state: WorkspaceState) {
   const range = resolveRange(state);
   if (!range.custom) {
@@ -173,15 +90,16 @@ export function rangeDays(state: WorkspaceState) {
 
 /** Orders visible for the active outlet, period and selected channels. */
 export function useDataset() {
-  const { state } = useWorkspace();
+  const state = useAppSelector(selectWorkspace);
+  const channels = useAppSelector(selectChannels);
   return useMemo(() => {
     if (state.dataMode === "empty") return [] as Order[];
     const { from, to } = resolveRange(state);
     return DEMO_ORDERS.filter((order) => {
       const time = new Date(order.placedAt).getTime();
-      return time >= from && time <= to && state.channels.includes(order.channel as ChannelCode);
+      return time >= from && time <= to && channels.includes(order.channel as ChannelCode);
     });
-  }, [state.dataMode, state.periodDays, state.rangeStart, state.rangeEnd, state.channels]);
+  }, [state.dataMode, state.periodDays, state.rangeStart, state.rangeEnd, channels]);
 }
 
 export const PERIOD_OPTIONS = [

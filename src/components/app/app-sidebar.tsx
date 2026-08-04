@@ -1,5 +1,4 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { DollarSign, IndianRupee } from "lucide-react";
 
 import {
   Sidebar,
@@ -14,10 +13,11 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { useI18n } from "@/lib/i18n";
+import { BrandMark } from "@/components/brand-mark";
 import { NAV_GROUPS } from "./nav";
 
 export function AppSidebar() {
-  const { t, market } = useI18n();
+  const { t } = useI18n();
   const pathname = useRouterState({ select: (router) => router.location.pathname });
   const isActive = (url: string) => pathname === url || pathname === `${url}/`;
 
@@ -25,9 +25,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-1 py-1.5">
-          <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            {market.code === "IN" ? <IndianRupee className="size-4" /> : <DollarSign className="size-4" />}
-          </span>
+          <BrandMark className="size-7 shrink-0" />
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="truncate text-sm font-semibold leading-tight">Retained</p>
             <p className="truncate text-xs text-muted-foreground">{t("brand.tagline")}</p>
