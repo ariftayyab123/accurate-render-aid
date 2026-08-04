@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { IndianRupee } from "lucide-react";
+import { DollarSign, IndianRupee } from "lucide-react";
 
 import {
   Sidebar,
@@ -13,9 +13,11 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { useI18n } from "@/lib/i18n";
 import { NAV_GROUPS } from "./nav";
 
 export function AppSidebar() {
+  const { t, market } = useI18n();
   const pathname = useRouterState({ select: (router) => router.location.pathname });
   const isActive = (url: string) => pathname === url || pathname === `${url}/`;
 
@@ -24,11 +26,11 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2 px-1 py-1.5">
           <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <IndianRupee className="size-4" />
+            {market.code === "IN" ? <IndianRupee className="size-4" /> : <DollarSign className="size-4" />}
           </span>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="truncate text-sm font-semibold leading-tight">Retained</p>
-            <p className="truncate text-xs text-muted-foreground">Profit intelligence</p>
+            <p className="truncate text-xs text-muted-foreground">{t("brand.tagline")}</p>
           </div>
         </div>
       </SidebarHeader>
@@ -37,18 +39,18 @@ export function AppSidebar() {
           <div key={group.label}>
             {index === 1 ? <SidebarSeparator className="my-1" /> : null}
             <SidebarGroup>
-              <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+              <SidebarGroupLabel>{t(group.key)}</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {group.items.map((item) => (
                     <SidebarMenuItem key={item.url}>
-                      <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
+                      <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={t(item.key)}>
                         <Link to={item.url} className="flex items-center gap-2">
                           <item.icon className="size-4 shrink-0" />
-                          <span className="truncate">{item.title}</span>
+                          <span className="truncate">{t(item.key)}</span>
                           {item.soon ? (
                             <span className="ml-auto rounded border border-border px-1 text-[10px] uppercase tracking-wide text-muted-foreground group-data-[collapsible=icon]:hidden">
-                              Soon
+                              {t("nav.soon")}
                             </span>
                           ) : null}
                         </Link>
