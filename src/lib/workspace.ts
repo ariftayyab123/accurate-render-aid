@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ANALYSIS_PERIOD, DEMO_ORDERS } from "@/data/orders";
 import type { ChannelCode, Order } from "@/data/types";
@@ -35,7 +35,11 @@ export function useWorkspace() {
 
 /** True only after client hydration, so stored state is never read during SSR render. */
 export function useHydrated() {
-  return useAppSelector(selectHydrated);
+  const storeHydrated = useAppSelector(selectHydrated);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  // The first client render must match the server render, so gate on mount too.
+  return mounted && storeHydrated;
 }
 
 const PERIOD_END = new Date(`${ANALYSIS_PERIOD.end}T23:59:59Z`).getTime();
