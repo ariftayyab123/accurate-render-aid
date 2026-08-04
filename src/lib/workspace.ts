@@ -155,10 +155,13 @@ const DATE_FMT = new Intl.DateTimeFormat("en-IN", {
   timeZone: "UTC",
 });
 
+
 export function rangeLabel(state: WorkspaceState) {
   const range = resolveRange(state);
   if (!range.custom) {
-    return PERIOD_OPTIONS.find((option) => option.days === state.periodDays)?.label ?? "Last 30 days";
+    const days = PERIOD_OPTIONS.find((option) => option.days === state.periodDays)?.days ?? 30;
+    const preset = { en: `Last ${days} days`, hi: `पिछले ${days} दिन`, ar: `آخر ${days} يوماً` };
+    return preset[state.language] ?? preset.en;
   }
   return `${DATE_FMT.format(new Date(range.from))} – ${DATE_FMT.format(new Date(range.to))}`;
 }
