@@ -1,47 +1,34 @@
-## Goal
+# Auth polish, brand mark, and state layer
 
-Build the "core money loop" of the Restaurant Profit Intelligence workspace as a frontend-only prototype: a user can create a demo account, set up a restaurant, load synthetic 30-day data, and immediately see how much money was retained per channel, per order and per dish.
+## 1. Sign-up form usability
+- Add a show/hide (eye) toggle to the password field on both Sign in and Create account.
+- Add a **Confirm password** field on Create account with a visibility toggle.
+- Validate before submit: passwords must match, minimum 8 characters. Inline error under the field, no toast spam.
+- Keep the existing "check your email" confirmation state.
 
-## Scope of this build
+## 2. Brand mark
+- Replace the rupee icon with a purpose-built "Retained" mark: an abstract glyph that reads as value kept — a filled portion inside a rounded container (a retained share), rendered in the teal brand token.
+- Generate the mark as an image asset, use it on the landing page, the auth brand panel and the app sidebar (no more currency-specific icon per market).
+- Update the favicon to the new mark and remove the default one.
 
-```text
-Landing / sign-up (mock)
-→ Onboarding wizard (restaurant, outlet, channels, demo-data load)
-→ App shell (sidebar + top bar with outlet/period/confidence)
-→ Overview dashboard
-→ Orders explorer + calculation drawer
-→ Menu profitability table + menu-engineering matrix
-```
+## 3. Google sign-in
+- Re-run the managed social login configuration so the Google provider is definitely active for this project.
+- Fix the sign-in call: `redirect_uri` must be a public same-origin URL (`window.location.origin` or a new `/auth/callback` public route), never a protected path. The intended destination (`next`) gets stored separately and applied only after the session is confirmed.
+- Add a `/auth/callback` route that waits for the session and then routes to the saved destination (or `/app`).
+- Verify end to end in the preview and report the actual provider error if one remains.
 
-Deferred to a later pass (nav entries present, marked "Coming soon"): CSV/XLSX imports, channel mapping editor, expenses ledger, reports, AI advisor, branding, team.
+## 4. Redux Toolkit for auth + workspace
+- Install `@reduxjs/toolkit` and `react-redux`; mount the store provider in the root route.
+- `authSlice`: session, user, status (`idle | loading | authenticated | signedOut`). A single `onAuthStateChange` subscriber dispatches into it — one listener for the whole app.
+- `workspaceSlice`: the restaurant/outlet/market/currency/channels/language state currently in `src/lib/workspace.ts`, with async thunks for load and save against the backend.
+- Memoized selectors (`createSelector`) for derived values so KPI screens don't recompute on unrelated state changes; components read via typed `useAppSelector`.
+- `src/lib/auth.ts` and `src/lib/workspace.ts` become thin wrappers over the store so existing call sites keep working, then get migrated.
 
-## Screens
-
-**Landing + auth (`/`)** — white-label branded entry, product promise, mock sign-up/login. No real auth; a local session flag. Two paths: "Start setup" and "Load demo restaurant" (Uday Foods, Shastri Nagar Meerut) which skips straight to a populated dashboard.
-
-**Onboarding wizard (`/onboarding`)** — four steps with progress and resumable local state: restaurant profile, outlet, channel selection (Zomato / Swiggy / Direct / POS / Other), data source choice (demo dataset vs. empty workspace). Selected channels drive what later screens show.
-
-**App shell** — ~232px sidebar grouped as Overview / Data Setup / Analysis / Advisor / Workspace, with Data Setup visually separated. Top bar: restaurant, outlet, analysis period (30-day default + custom range), data-confidence chip, upload shortcut, account menu.
-
-**Overview (`/app`)** — first row exactly: gross order value, restaurant-funded discounts, platform deductions, estimated contribution, contribution margin, data confidence. Every KPI opens a calculation drawer showing the formula, inputs and source labels (imported / estimated / manual / missing). Below: channel comparison table (orders, GOV, AOV, discounts, deductions, food+packaging, contribution, margin, settlement variance), one deterministic insight card, top/weak contributors list. No "net profit" wording anywhere.
-
-**Orders (`/app/orders`)** — dense table with search, channel/status/date filters and sorting: order ID, datetime, channel, order value, discount, platform deductions, food+packaging, contribution, margin, status, data quality. Row click opens a right drawer breaking deductions into service fee, GST on fee, payment fee, ad allocation, adjustments, then the full contribution walk.
-
-**Menu profitability (`/app/menu-profitability`)** — table tab (item, category, units sold, channel prices, sales, avg food cost, avg deductions, contribution, contribution per item, margin, mapping status) plus a menu-engineering matrix tab (Stars / Popular but weak / Opportunities / Review).
-
-## Data + calculations
-
-- Typed fixtures in `src/data/`: restaurant, outlet, 8–12 master items with channel listings and prices, ~431 synthetic orders across Jul 1–30 2026 with order lines, generated deterministically from a seeded generator so channel totals land near Zomato 262 orders / 18.7% margin, Swiggy 135 / 24.8%, Direct 34 / 38.2%, overall ~22.0%. Sample rows from the spec are used verbatim as anchors.
-- A single metrics module implements the dictionary: gross order value, restaurant revenue basis, platform deduction, estimated order contribution, contribution margin. TDS/TCS tracked separately and never subtracted from contribution.
-- Everything labelled synthetic in the UI. Persistence via localStorage (onboarding state, session, active outlet/period).
-
-## Design
-
-Financial-operations look, not AI dashboard: warm-white base, near-black text, subtle gray borders and dividers, single deep-green accent used only for active nav, primary actions and focus. Compact table rows, 6–10px radii, minimal shadow, tabular numerals. No gradients, glassmorphism, purple-blue palette, oversized KPI type or sparkle icons. All colors as semantic tokens in `src/styles.css`.
+## 5. Frontend practices pass
+- Route-level code splitting stays with TanStack's file routes; heavy calculation modules memoized with `useMemo`/`createSelector`.
+- Stable callbacks where they feed memoized children, `React.memo` on the KPI/channel cards.
+- Keep data fetching in loaders/React Query rather than effects; Redux holds session/workspace only, not server cache.
 
 ## Technical notes
-
-- TanStack Start file routes; `src/routes/index.tsx` becomes the landing page, authenticated screens under a shared layout route rendering the shell.
-- shadcn components for table, drawer/sheet, tabs, dialog, select, form; Recharts only where a chart carries a decision.
-- No backend, no API keys, no Gemini call — advisor stays out of this pass.
-- Per-route `head()` metadata with app-specific titles and descriptions.
+- Files touched: `src/routes/auth.tsx`, new `src/routes/auth.callback.tsx`, `src/routes/index.tsx`, `src/components/app/app-sidebar.tsx`, `src/routes/__root.tsx`, new `src/store/*`, `src/lib/auth.ts`, `src/lib/workspace.ts`, `public/favicon.png`.
+- Redux state is client-only; server functions and RLS remain the source of truth.
