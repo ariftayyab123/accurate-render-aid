@@ -228,7 +228,7 @@ function AuthPage() {
                         onChange={(event) => setPassword(event.target.value)}
                       />
                     </div>
-                    <Button type="submit" className="w-full gap-1.5" disabled={busy}>
+                    <Button type="submit" className="h-12 w-full gap-1.5 rounded-xl" disabled={busy}>
                       {busy ? <Loader2 className="size-4 animate-spin" /> : null}
                       Sign in
                     </Button>
@@ -271,7 +271,7 @@ function AuthPage() {
                       />
                       <p className="text-xs text-muted-foreground">At least 8 characters.</p>
                     </div>
-                    <Button type="submit" className="w-full gap-1.5" disabled={busy}>
+                    <Button type="submit" className="h-12 w-full gap-1.5 rounded-xl" disabled={busy}>
                       {busy ? <Loader2 className="size-4 animate-spin" /> : null}
                       Create account
                       <ArrowRight className="size-4" />
