@@ -39,6 +39,15 @@ export function defaultLanguageForMarket(market: string): LanguageCode {
 type Dict = Record<string, string>;
 
 const en: Dict = {
+  "overview.youKept": "You kept this much",
+  "overview.youKeptCaption": "Out of {sales} in sales, you kept about {per} of every {hundred} after apps, discounts and food cost. Rent, salaries and electricity still come out of this.",
+  "overview.perHundred": "Money kept per {hundred}",
+  "overview.perHundredCaption": "Roughly {per} out of every {hundred} of sales stays with you.",
+  "overview.bestDishes": "Dishes that earn you the most",
+  "overview.bestDishesCaption": "Money kept across these dates",
+  "overview.weakDishes": "Dishes that leave you little",
+  "overview.weakDishesCaption": "They sell, but not much stays with you",
+  "overview.beforeFixed": "This is money kept before rent and salaries",
   "brand.tagline": "Profit intelligence",
   "nav.overviewGroup": "Overview",
   "nav.overview": "Overview",
@@ -93,6 +102,15 @@ const en: Dict = {
 };
 
 const hi: Dict = {
+  "overview.youKept": "आपके पास इतना बचा",
+  "overview.youKeptCaption": "{sales} की बिक्री में से, ऐप्स, छूट और खाने की लागत के बाद हर {hundred} में लगभग {per} आपके पास बचे। किराया, तनख़्वाह और बिजली इसी में से जाते हैं।",
+  "overview.perHundred": "हर {hundred} में बचत",
+  "overview.perHundredCaption": "बिक्री के हर {hundred} में से लगभग {per} आपके पास रहते हैं।",
+  "overview.bestDishes": "सबसे ज़्यादा कमाई वाले व्यंजन",
+  "overview.bestDishesCaption": "इन तारीख़ों में बचा पैसा",
+  "overview.weakDishes": "कम बचत वाले व्यंजन",
+  "overview.weakDishesCaption": "बिकते हैं, पर बचत कम है",
+  "overview.beforeFixed": "यह किराया और तनख़्वाह से पहले बचा पैसा है",
   "brand.tagline": "मुनाफ़ा जानकारी",
   "nav.overviewGroup": "सारांश",
   "nav.overview": "सारांश",
@@ -147,6 +165,15 @@ const hi: Dict = {
 };
 
 const ar: Dict = {
+  "overview.youKept": "هذا ما بقي لك",
+  "overview.youKeptCaption": "من أصل {sales} مبيعات، بقي لك نحو {per} من كل {hundred} بعد التطبيقات والخصومات وتكلفة الطعام. الإيجار والرواتب والكهرباء تُخصم من هذا المبلغ.",
+  "overview.perHundred": "المتبقي من كل {hundred}",
+  "overview.perHundredCaption": "يبقى لك نحو {per} من كل {hundred} من المبيعات.",
+  "overview.bestDishes": "الأطباق الأكثر ربحاً",
+  "overview.bestDishesCaption": "المبلغ المتبقي خلال هذه الفترة",
+  "overview.weakDishes": "أطباق تترك لك القليل",
+  "overview.weakDishesCaption": "تُباع، لكن يبقى منها القليل",
+  "overview.beforeFixed": "هذا ما يبقى قبل الإيجار والرواتب",
   "brand.tagline": "ذكاء الأرباح",
   "nav.overviewGroup": "نظرة عامة",
   "nav.overview": "نظرة عامة",

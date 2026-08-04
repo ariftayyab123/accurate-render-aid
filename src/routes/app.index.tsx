@@ -98,10 +98,10 @@ function Overview() {
         <div className="lg:col-span-2">
           <KpiCard
             size="hero"
-            label="You kept this much"
+            label={t("overview.youKept")}
             value={formatCurrency(totals.contribution)}
             tone="positive"
-            caption={`Out of ${formatCurrency(totals.grossOrderValue)} in sales, you kept about ₹${perHundred} of every ₹100 after apps, discounts and food cost. Rent, salaries and electricity still come out of this.`}
+            caption={t("overview.youKeptCaption", { sales: formatCurrency(totals.grossOrderValue), per: `${currencySymbol()}${perHundred}`, hundred: `${currencySymbol()}100` })}
             formula="Revenue basis − platform deduction − food and packaging cost"
             rows={[
               { label: "Revenue basis", value: formatCurrency(totals.revenueBasis) },
@@ -120,9 +120,9 @@ function Overview() {
           />
         </div>
         <KpiCard
-          label="Money kept per ₹100"
+          label={t("overview.perHundred", { hundred: `${currencySymbol()}100` })}
           value={formatPercent(totals.margin)}
-          caption={`Roughly ₹${perHundred} out of every ₹100 of sales stays with you.`}
+          caption={t("overview.perHundredCaption", { per: `${currencySymbol()}${perHundred}`, hundred: `${currencySymbol()}100` })}
           hint={`Numbers are ${formatPercent(confidence, 0)} from uploaded records`}
           tone="positive"
           formula="Estimated contribution ÷ revenue basis"
@@ -376,28 +376,28 @@ function Overview() {
 
       <section className="mt-3 grid gap-3 lg:grid-cols-2">
         <ContributorList
-          title="Dishes that earn you the most"
-          caption="Money kept across these dates"
+          title={t("overview.bestDishes")}
+          caption={t("overview.bestDishesCaption")}
           rows={strongest.map((row) => ({
             name: row.item.name,
             primary: formatCurrency(row.contribution),
-            secondary: `${row.unitsSold} sold · keeps ${formatPercent(row.margin)}`,
+            secondary: `${row.unitsSold} sold · ${formatPercent(row.margin)}`,
           }))}
         />
         <ContributorList
-          title="Dishes that leave you little"
-          caption="They sell, but not much stays with you"
+          title={t("overview.weakDishes")}
+          caption={t("overview.weakDishesCaption")}
           rows={weakest.map((row) => ({
             name: row.item.name,
             primary: formatPercent(row.margin),
-            secondary: `${row.unitsSold} sold · ${formatCurrency(row.contribution)} {t("overview.kept")}`,
+            secondary: `${row.unitsSold} sold · ${formatCurrency(row.contribution)} ${t("overview.kept")}`,
           }))}
         />
       </section>
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
         <Badge variant="outline" className="font-normal">
-          This is money kept before rent and salaries
+          {t("overview.beforeFixed")}
         </Badge>
         <p className="text-xs text-muted-foreground">
           All figures are sample data made for this prototype, not real Zomato or Swiggy data.
