@@ -13,9 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    next: typeof search['next'] === "string" ? search['next'] : "",
-  }),
+  validateSearch: (search: Record<string, unknown>): { next?: string } =>
+    typeof search['next'] === "string" ? { next: search['next'] } : {},
   head: () => ({
     meta: [
       { title: "Sign in — Retained" },
@@ -41,7 +40,7 @@ function AuthPage() {
   const { session, loading } = useSession();
   const { next } = Route.useSearch();
   // Only same-origin relative paths are safe redirect targets.
-  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "";
+  const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "";
   const afterAuth = () => {
     if (safeNext) {
       window.location.href = safeNext;
