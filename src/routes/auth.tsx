@@ -13,6 +13,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    next: typeof search['next'] === "string" ? search['next'] : "",
+  }),
   head: () => ({
     meta: [
       { title: "Sign in — Retained" },
@@ -36,6 +39,16 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const { session, loading } = useSession();
+  const { next } = Route.useSearch();
+  // Only same-origin relative paths are safe redirect targets.
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "";
+  const afterAuth = () => {
+    if (safeNext) {
+      window.location.href = safeNext;
+      return;
+    }
+    navigate({ to: "/app" });
+  };
   const [mode, setMode] = useState("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,7 +57,7 @@ function AuthPage() {
   const [checkEmail, setCheckEmail] = useState(false);
 
   useEffect(() => {
-    if (!loading && session) navigate({ to: "/app" });
+    if (!loading && session) afterAuth();
   }, [loading, session, navigate]);
 
   const signIn = async (event: React.FormEvent) => {
@@ -56,7 +69,7 @@ function AuthPage() {
       toast.error("Could not sign you in", { description: error.message });
       return;
     }
-    navigate({ to: "/app" });
+    afterAuth();
   };
 
   const signUp = async (event: React.FormEvent) => {
@@ -66,7 +79,7 @@ function AuthPage() {
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: safeNext ? `${window.location.origin}${safeNext}` : window.location.origin,
         data: { full_name: fullName },
       },
     });
@@ -76,6 +89,10 @@ function AuthPage() {
       return;
     }
     if (data.session) {
+      if (safeNext) {
+        window.location.href = safeNext;
+        return;
+      }
       navigate({ to: "/onboarding" });
       return;
     }
@@ -85,7 +102,7 @@ function AuthPage() {
   const googleSignIn = async () => {
     setBusy(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: safeNext ? `${window.location.origin}${safeNext}` : window.location.origin,
     });
     if (result.error) {
       setBusy(false);
@@ -94,7 +111,7 @@ function AuthPage() {
     }
     if (result.redirected) return;
     setBusy(false);
-    navigate({ to: "/app" });
+    afterAuth();
   };
 
   return (
