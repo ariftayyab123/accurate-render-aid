@@ -7,8 +7,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { CHANNEL_LABELS, type ChannelCode } from "@/data/types";
+import { MARKETS, marketConfig } from "@/data/markets";
 import { cn } from "@/lib/utils";
+import { useSession } from "@/lib/auth";
+import { saveWorkspaceForUser } from "@/lib/workspace-sync";
 import { useHydrated, useWorkspace } from "@/lib/workspace";
 
 export const Route = createFileRoute("/onboarding")({
@@ -31,17 +33,19 @@ export const Route = createFileRoute("/onboarding")({
 });
 
 const STEPS = ["Restaurant", "Outlet", "Channels", "Data"];
-const CHANNELS: ChannelCode[] = ["zomato", "swiggy", "direct"];
 
 function Onboarding() {
   const { state, update } = useWorkspace();
   const hydrated = useHydrated();
   const navigate = useNavigate();
+  const { session, loading } = useSession();
   const [step, setStep] = useState(state.onboardingStep);
+  const [saving, setSaving] = useState(false);
+  const market = marketConfig(state.market);
 
   useEffect(() => {
-    if (hydrated && !state.signedIn) navigate({ to: "/" });
-  }, [hydrated, state.signedIn, navigate]);
+    if (hydrated && !loading && !session) navigate({ to: "/auth" });
+  }, [hydrated, loading, session, navigate]);
 
   useEffect(() => {
     if (hydrated) setStep(state.onboardingStep);
@@ -49,11 +53,21 @@ function Onboarding() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated]);
 
-  const toggleChannel = (channel: ChannelCode) => {
+  const toggleChannel = (channel: string) => {
     const next = state.channels.includes(channel)
       ? state.channels.filter((entry) => entry !== channel)
       : [...state.channels, channel];
     update({ channels: next });
+  };
+
+  const selectMarket = (code: string) => {
+    const config = marketConfig(code);
+    update({
+      market: config.code,
+      currency: config.currency,
+      channels: config.channels.map((channel) => channel.code),
+      dataMode: config.demoReady ? state.dataMode : "empty",
+    });
   };
 
   const canContinue =
@@ -62,15 +76,26 @@ function Onboarding() {
     (step === 2 && state.channels.length > 0) ||
     step === 3;
 
-  const goNext = () => {
+  const goNext = async () => {
+    const userId = session?.user.id;
     if (step === STEPS.length - 1) {
+      const finished = { ...state, onboardingComplete: true, onboardingStep: step };
       update({ onboardingComplete: true, onboardingStep: step });
+      if (userId) {
+        setSaving(true);
+        try {
+          await saveWorkspaceForUser(userId, finished);
+        } finally {
+          setSaving(false);
+        }
+      }
       navigate({ to: "/app" });
       return;
     }
     const next = step + 1;
     setStep(next);
     update({ onboardingStep: next });
+    if (userId) void saveWorkspaceForUser(userId, { ...state, onboardingStep: next });
   };
 
   const goBack = () => {
@@ -105,14 +130,36 @@ function Onboarding() {
                 <Input
                   id="city"
                   value={state.city}
-                  placeholder="Meerut"
+                  placeholder={market.cityPlaceholder}
                   onChange={(event) => update({ city: event.target.value })}
                 />
               </div>
-              <p className="text-xs text-muted-foreground">
-                Currency is fixed to INR and the analysis timezone to Asia/Kolkata in this
-                prototype.
-              </p>
+              <div className="space-y-1.5">
+                <Label>Where do you operate?</Label>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {MARKETS.map((option) => (
+                    <button
+                      key={option.code}
+                      type="button"
+                      onClick={() => selectMarket(option.code)}
+                      className={cn(
+                        "rounded-md border px-3 py-2.5 text-left transition-colors",
+                        state.market === option.code
+                          ? "border-primary bg-accent/50"
+                          : "border-border hover:bg-accent/30",
+                      )}
+                    >
+                      <span className="block text-sm font-medium">{option.label}</span>
+                      <span className="mt-0.5 block text-xs text-muted-foreground">
+                        {option.currencyLabel}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  This sets your currency and the delivery apps we ask about next.
+                </p>
+              </div>
             </div>
           ) : null}
 
@@ -138,16 +185,16 @@ function Onboarding() {
               <p className="text-sm text-muted-foreground">
                 Selected channels decide which imports and mappings you will be asked for.
               </p>
-              {CHANNELS.map((channel) => (
+              {market.channels.map((channel) => (
                 <label
-                  key={channel}
+                  key={channel.code}
                   className="flex cursor-pointer items-center gap-3 rounded-md border border-border px-3 py-2.5 hover:bg-accent/40"
                 >
                   <Checkbox
-                    checked={state.channels.includes(channel)}
-                    onCheckedChange={() => toggleChannel(channel)}
+                    checked={state.channels.includes(channel.code)}
+                    onCheckedChange={() => toggleChannel(channel.code)}
                   />
-                  <span className="text-sm font-medium">{CHANNEL_LABELS[channel]}</span>
+                  <span className="text-sm font-medium">{channel.label}</span>
                 </label>
               ))}
               <div className="flex items-center gap-3 rounded-md border border-dashed border-border px-3 py-2.5 text-sm text-muted-foreground">
@@ -213,7 +260,7 @@ function Onboarding() {
             <ArrowLeft className="size-4" />
             Back
           </Button>
-          <Button onClick={goNext} disabled={!canContinue} className="gap-1.5">
+          <Button onClick={goNext} disabled={!canContinue || saving} className="gap-1.5">
             {step === STEPS.length - 1 ? "Open workspace" : "Continue"}
             <ArrowRight className="size-4" />
           </Button>
