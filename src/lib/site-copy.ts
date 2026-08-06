@@ -110,7 +110,7 @@ const en: SiteCopy = {
     expected: "What your payout should have been",
     paid: "What the platform actually paid",
     gap: "Unexplained deductions, flagged",
-    gapNote: "Ad charges with no matching campaign on record in the demo month.",
+    gapNote: "A portion of ad charges with no matching campaign on record in the demo month.",
     flowTitle: "Where the money actually went",
     labels: {
       sales: "What customers paid",
@@ -118,8 +118,10 @@ const en: SiteCopy = {
       taxOnFees: "GST on that commission",
       payment: "Payment charges",
       ads: "Ads charged to you",
+      unmatchedAds: "Ads with no matching campaign ⚠",
       discounts: "Discounts you funded",
       food: "Food and packing",
+      tds: "TDS withheld (tax credit)",
       kept: "What you kept",
     },
     note: "One month, 431 orders of sample data. This is money kept before rent, salaries and electricity — we never call it net profit.",
@@ -209,7 +211,7 @@ const en: SiteCopy = {
     note: "No commitment. No card. Skip to explore with sample data if you'd rather look around first.",
   },
   footer:
-    "Contribution and margin are estimates based on the data you supply. Retained never labels them as net profit.",
+    " · Contribution and margin are estimates based on the data you supply. Retained never labels them as net profit.",
 };
 
 const hi: SiteCopy = {
@@ -272,7 +274,7 @@ const hi: SiteCopy = {
     expected: "आपका पेआउट कितना होना चाहिए था",
     paid: "प्लेटफ़ॉर्म ने असल में दिया",
     gap: "बिना कारण की कटौती, फ़्लैग की गई",
-    gapNote: "डेमो महीने में ऐसे विज्ञापन चार्ज जिनका कोई मेल खाता कैंपेन रिकॉर्ड में नहीं है।",
+    gapNote: "डेमो महीने में कुछ विज्ञापन चार्ज जिनका कोई मेल खाता कैंपेन रिकॉर्ड में नहीं है।",
     flowTitle: "पैसा असल में गया कहाँ",
     labels: {
       sales: "ग्राहक ने जो चुकाया",
@@ -280,8 +282,10 @@ const hi: SiteCopy = {
       taxOnFees: "उस कमीशन पर GST",
       payment: "पेमेंट चार्ज",
       ads: "आप पर लगे विज्ञापन चार्ज",
+      unmatchedAds: "बिना कैंपेन के विज्ञापन चार्ज ⚠",
       discounts: "आपकी दी हुई छूट",
       food: "खाना और पैकिंग",
+      tds: "TDS रोका गया (टैक्स क्रेडिट)",
       kept: "आपके पास बचा",
     },
     note: "एक महीना, 431 ऑर्डर का नमूना डेटा। यह किराया, तनख़्वाह और बिजली से पहले का पैसा है — हम इसे कभी नेट प्रॉफ़िट नहीं कहते।",
@@ -368,7 +372,7 @@ const hi: SiteCopy = {
     note: "कोई शर्त नहीं, कोई कार्ड नहीं। चाहें तो पहले नमूना डेटा में घूम लीजिए।",
   },
   footer:
-    "कॉन्ट्रिब्यूशन और मार्जिन आपके दिए डेटा पर आधारित अनुमान हैं। Retained इन्हें कभी नेट प्रॉफ़िट नहीं कहता।",
+    " · कॉन्ट्रिब्यूशन और मार्जिन आपके दिए डेटा पर आधारित अनुमान हैं। Retained इन्हें कभी नेट प्रॉफ़िट नहीं कहता।",
 };
 
 const ar: SiteCopy = {
@@ -424,7 +428,7 @@ const ar: SiteCopy = {
     expected: "ما كان يجب أن تكون عليه دفعتك",
     paid: "ما دفعته المنصّة فعلاً",
     gap: "خصومات غير مُفسَّرة، مُعلَّمة",
-    gapNote: "رسوم إعلانية بلا حملة مطابقة في سجلّ الشهر التجريبي.",
+    gapNote: "رسوم إعلانية بلا حملة مطابقة في جزء من الشهر التجريبي.",
     flowTitle: "أين ذهب المال فعلاً",
     labels: {
       sales: "ما دفعه العملاء",
@@ -432,8 +436,10 @@ const ar: SiteCopy = {
       taxOnFees: "الضريبة على العمولة",
       payment: "رسوم الدفع",
       ads: "رسوم إعلانية عليك",
+      unmatchedAds: "رسوم إعلانية بلا حملة ⚠",
       discounts: "الخصومات التي تحمّلتها",
       food: "الطعام والتغليف",
+      tds: "ضريبة مقتطعة (رصيد ضريبي)",
       kept: "ما بقي لك",
     },
     note: "شهر واحد، 431 طلباً من بيانات العيّنة. هذا المبلغ قبل الإيجار والرواتب والكهرباء — ولا نسمّيه صافي ربح.",
@@ -520,7 +526,7 @@ const ar: SiteCopy = {
     note: "بلا التزام وبلا بطاقة. ويمكنك التجوّل أولاً ببيانات العيّنة إن أردت.",
   },
   footer:
-    "المساهمة والهامش تقديرات مبنية على البيانات التي تزوّدنا بها. لا يسمّيها Retained صافي ربح أبداً.",
+    " · المساهمة والهامش تقديرات مبنية على البيانات التي تزوّدنا بها. لا يسمّيها Retained صافي ربح أبداً.",
 };
 
 const COPY: Record<LanguageCode, SiteCopy> = { en, hi, ar };

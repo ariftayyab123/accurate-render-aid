@@ -12,7 +12,7 @@ import type { SiteCopy } from "@/lib/site-copy";
 export function Reconciliation({ copy }: { copy: SiteCopy }) {
   const slices = FLOW.filter((step) => step.key !== "sales");
   const expected = DEMO.sales - DEMO.platformCut - DEMO.discounts;
-  const flagged = DEMO.ads;
+  const flagged = DEMO.unmatchedAds;
   const paid = expected - flagged;
 
   return (
@@ -21,6 +21,9 @@ export function Reconciliation({ copy }: { copy: SiteCopy }) {
         <h2 className="display max-w-3xl text-3xl font-semibold tracking-tight sm:text-4xl">
           {copy.recon.title}
         </h2>
+        <span className="mt-3 inline-flex rounded-full bg-accent px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-accent-foreground">
+          Demo
+        </span>
         <p className="mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground">
           {copy.recon.lead}
         </p>
@@ -65,6 +68,8 @@ export function Reconciliation({ copy }: { copy: SiteCopy }) {
                   step.kind === "kept" ? "bg-primary" : "bg-foreground/20",
                   step.key === "commission" && "bg-foreground/45",
                   step.key === "food" && "bg-foreground/30",
+                  step.key === "unmatchedAds" && "bg-destructive/70",
+                  step.key === "tds" && "bg-foreground/10",
                 )}
                 style={{ width: `${(step.share * 100).toFixed(2)}%` }}
                 title={copy.recon.labels[step.key]}
@@ -86,7 +91,11 @@ export function Reconciliation({ copy }: { copy: SiteCopy }) {
                     "text-sm",
                     step.kind === "kept"
                       ? "font-semibold text-foreground"
-                      : "text-muted-foreground",
+                      : step.key === "unmatchedAds"
+                        ? "font-medium text-destructive"
+                        : step.key === "tds"
+                          ? "italic text-muted-foreground"
+                          : "text-muted-foreground",
                   )}
                 >
                   {copy.recon.labels[step.key]}

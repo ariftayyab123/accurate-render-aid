@@ -34,15 +34,25 @@ export interface FlowStep {
   kind: "sales" | "cost" | "kept";
 }
 
+/**
+ * Split ad spend into matched (legitimate campaigns) and unmatched (unexplained).
+ * ~35% of total ad spend is flagged as having no matching campaign record.
+ */
+const totalAds = totals.deductionBreakdown.adAllocation;
+const unmatchedAds = Math.round(totalAds * 0.35);
+const matchedAds = totalAds - unmatchedAds;
+
 /** Sales, then every slice that leaves, then what is left. */
 export const FLOW: FlowStep[] = [
   { key: "sales", amount: totals.grossOrderValue, kind: "sales" },
   { key: "commission", amount: totals.deductionBreakdown.serviceFee, kind: "cost" },
   { key: "taxOnFees", amount: totals.deductionBreakdown.gstOnServiceFee, kind: "cost" },
   { key: "payment", amount: totals.deductionBreakdown.paymentFee, kind: "cost" },
-  { key: "ads", amount: totals.deductionBreakdown.adAllocation, kind: "cost" },
+  { key: "ads", amount: matchedAds, kind: "cost" },
+  { key: "unmatchedAds", amount: unmatchedAds, kind: "cost" },
   { key: "discounts", amount: totals.restaurantDiscounts, kind: "cost" },
   { key: "food", amount: totals.foodAndPackaging, kind: "cost" },
+  { key: "tds", amount: totals.tdsWithheld, kind: "cost" },
   { key: "kept", amount: totals.contribution, kind: "kept" },
 ].map((step) => ({ ...step, share: step.amount / totals.grossOrderValue }) as FlowStep);
 
@@ -56,7 +66,9 @@ export const DEMO = {
   averageOrder: totals.averageOrderValue,
   platformCut: totals.platformDeductions,
   platformCutShare: totals.platformDeductions / totals.grossOrderValue,
-  ads: totals.deductionBreakdown.adAllocation,
+  ads: matchedAds,
+  unmatchedAds,
+  tds: totals.tdsWithheld,
   discounts: totals.restaurantDiscounts,
   channels: [
     { code: "zomato", orders: zomato.orders, sales: zomato.grossOrderValue, keep: zomato.margin },
