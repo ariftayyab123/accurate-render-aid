@@ -16,7 +16,7 @@ export interface WorkspaceState {
   language: "en" | "hi" | "ar";
   outletName: string;
   channels: string[];
-  dataMode: "demo" | "empty";
+  dataMode: "demo" | "empty" | "imported";
   periodDays: number;
   /** ISO date (yyyy-mm-dd) custom range. When both are set they override periodDays. */
   rangeStart: string;
