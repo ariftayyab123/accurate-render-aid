@@ -3,6 +3,8 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { DEMO_OUTLETS, DEMO_RESTAURANT } from "@/data/menu";
 import type { MarketCode } from "@/data/markets";
 
+import type { Order, Settlement } from "@/data/types";
+
 export interface WorkspaceState {
   signedIn: boolean;
   email: string;
@@ -17,6 +19,8 @@ export interface WorkspaceState {
   outletName: string;
   channels: string[];
   dataMode: "demo" | "empty" | "imported";
+  importedOrders?: Order[];
+  importedSettlements?: Settlement[];
   periodDays: number;
   /** ISO date (yyyy-mm-dd) custom range. When both are set they override periodDays. */
   rangeStart: string;
@@ -36,6 +40,8 @@ export const DEFAULT_STATE: WorkspaceState = {
   outletName: "",
   channels: ["zomato", "swiggy", "direct"],
   dataMode: "demo",
+  importedOrders: [],
+  importedSettlements: [],
   periodDays: 30,
   rangeStart: "",
   rangeEnd: "",

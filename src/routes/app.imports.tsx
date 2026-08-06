@@ -22,19 +22,19 @@ export const Route = createFileRoute("/app/imports")({
 });
 
 function ImportsRoute() {
-  const { update } = useWorkspace();
+  const { state, update } = useWorkspace();
   const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
 
   const handleDemoClick = () => {
     setIsUploading(true);
-    toast.info("Simulating demo file upload...", { duration: 2000 });
+    toast.info("Simulating demo file upload...", { duration: 1500 });
     setTimeout(() => {
       update({ dataMode: "demo" });
       setIsUploading(false);
       toast.success("Demo data loaded successfully!");
-      navigate({ to: "/app/mapping" });
-    }, 2000);
+      navigate({ to: "/app" });
+    }, 1500);
   };
 
   const handleFileUpload = (type: "orders" | "settlements") => async (file: File) => {
@@ -52,9 +52,21 @@ function ImportsRoute() {
         result = await parseZomatoSettlement(text);
       }
       
-      console.log("Parsed result:", result);
+      const existingOrders = state.importedOrders || [];
+      const existingSettlements = state.importedSettlements || [];
+      const updatedOrders = [...existingOrders, ...result.orders];
+      const updatedSettlements = [...existingSettlements, result.settlement];
+
+      update({
+        dataMode: "imported",
+        importedOrders: updatedOrders,
+        importedSettlements: updatedSettlements,
+      });
+
       toast.success(`Successfully parsed ${result.orders.length} orders from ${file.name}`);
-      update({ dataMode: "imported" });
+      setTimeout(() => {
+        navigate({ to: "/app" });
+      }, 1000);
     } catch (e: any) {
       toast.error(`Failed to parse file: ${e.message}`);
     } finally {

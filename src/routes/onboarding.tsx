@@ -246,9 +246,12 @@ function Onboarding() {
                         result = await parseZomatoSettlement(text);
                       }
                       
-                      console.log("Onboarding parsed:", result);
                       setUploadedFile(file);
-                      update({ dataMode: "imported" });
+                      update({
+                        dataMode: "imported",
+                        importedOrders: result.orders,
+                        importedSettlements: [result.settlement],
+                      });
                     } catch (e: any) {
                       console.error("Parse failed", e);
                       alert(`Failed to parse file: ${e.message}`);

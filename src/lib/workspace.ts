@@ -58,12 +58,25 @@ function clamp(value: number) {
 /** Resolved date window for the workspace, whether from a preset or a custom range. */
 export function resolveRange(state: WorkspaceState) {
   if (state.rangeStart && state.rangeEnd) {
-    const from = clamp(new Date(`${state.rangeStart}T00:00:00Z`).getTime());
-    const to = clamp(new Date(`${state.rangeEnd}T23:59:59Z`).getTime());
+    const from = new Date(`${state.rangeStart}T00:00:00Z`).getTime();
+    const to = new Date(`${state.rangeEnd}T23:59:59Z`).getTime();
     if (!Number.isNaN(from) && !Number.isNaN(to) && from <= to) {
       return { from, to, custom: true as const };
     }
   }
+
+  const isImported = state.dataMode === "imported" && Boolean(state.importedOrders?.length);
+  if (isImported) {
+    const timestamps = (state.importedOrders || [])
+      .map((o) => new Date(o.placedAt).getTime())
+      .filter((t) => !Number.isNaN(t));
+    if (timestamps.length > 0) {
+      const maxTime = Math.max(...timestamps);
+      const minTime = Math.min(...timestamps);
+      return { from: minTime, to: maxTime, custom: false as const };
+    }
+  }
+
   return { from: periodStart(state.periodDays), to: PERIOD_END, custom: false as const };
 }
 
@@ -94,12 +107,21 @@ export function useDataset() {
   const channels = useAppSelector(selectChannels);
   return useMemo(() => {
     if (state.dataMode === "empty") return [] as Order[];
+
+    const isImported = state.dataMode === "imported" && Boolean(state.importedOrders?.length);
+    const sourceOrders = isImported ? state.importedOrders! : DEMO_ORDERS;
+
+    if (isImported && !state.rangeStart && !state.rangeEnd) {
+      return sourceOrders.filter((order) => channels.includes(order.channel as ChannelCode));
+    }
+
     const { from, to } = resolveRange(state);
-    return DEMO_ORDERS.filter((order) => {
+    return sourceOrders.filter((order) => {
       const time = new Date(order.placedAt).getTime();
-      return time >= from && time <= to && channels.includes(order.channel as ChannelCode);
+      const inRange = Number.isNaN(time) || (time >= from && time <= to);
+      return inRange && channels.includes(order.channel as ChannelCode);
     });
-  }, [state.dataMode, state.periodDays, state.rangeStart, state.rangeEnd, channels]);
+  }, [state.dataMode, state.importedOrders, state.periodDays, state.rangeStart, state.rangeEnd, channels]);
 }
 
 export const PERIOD_OPTIONS = [
