@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { errorMessage } from "@/lib/parsers/base";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 
@@ -252,9 +253,9 @@ function Onboarding() {
                         importedOrders: result.orders,
                         importedSettlements: [result.settlement],
                       });
-                    } catch (e: any) {
+                    } catch (e: unknown) {
                       console.error("Parse failed", e);
-                      alert(`Failed to parse file: ${e.message}`);
+                      toast.error(`Failed to parse file: ${errorMessage(e)}`);
                     } finally {
                       setSaving(false);
                     }

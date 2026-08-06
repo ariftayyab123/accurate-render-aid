@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { UploadZone } from "@/components/app/upload-zone";
 import { Button } from "@/components/ui/button";
 import { useWorkspace } from "@/lib/workspace";
+import { errorMessage } from "@/lib/parsers/base";
 
 export const Route = createFileRoute("/app/imports")({
   head: () => ({
@@ -67,8 +68,8 @@ function ImportsRoute() {
       setTimeout(() => {
         navigate({ to: "/app" });
       }, 1000);
-    } catch (e: any) {
-      toast.error(`Failed to parse file: ${e.message}`);
+    } catch (e: unknown) {
+      toast.error(`Failed to parse file: ${errorMessage(e)}`);
     } finally {
       setIsUploading(false);
     }

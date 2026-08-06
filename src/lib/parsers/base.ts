@@ -136,3 +136,8 @@ export async function parseSettlementCsv(
     });
   });
 }
+
+/** Safe human-readable message for an unknown thrown value. */
+export function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
