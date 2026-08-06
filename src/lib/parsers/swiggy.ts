@@ -87,13 +87,13 @@ export async function parseSwiggySettlement(
           adsAndAdjustments: totalAdsAndAdjustments,
           taxWithheld: totalTaxWithheld,
           netPayout: totalNetPayout,
-          variance: 0, 
-          overrides
+          variance: 0,
+          ...(overrides ? { overrides } : {}),
         };
 
         resolve({ orders, settlement });
       },
-      error: (error) => {
+      error: (error: unknown) => {
         reject(error);
       }
     });

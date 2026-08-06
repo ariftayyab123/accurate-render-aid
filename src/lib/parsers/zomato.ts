@@ -89,13 +89,13 @@ export async function parseZomatoSettlement(
           adsAndAdjustments: totalAdsAndAdjustments,
           taxWithheld: totalTaxWithheld,
           netPayout: totalNetPayout,
-          variance: 0, // This would be calculated by comparing computed net against stated net
-          overrides
+          variance: 0,
+          ...(overrides ? { overrides } : {}),
         };
 
         resolve({ orders, settlement });
       },
-      error: (error) => {
+      error: (error: unknown) => {
         reject(error);
       }
     });
