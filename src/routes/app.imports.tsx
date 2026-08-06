@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { UploadZone } from "@/components/app/upload-zone";
 import { Button } from "@/components/ui/button";
 import { useWorkspace } from "@/lib/workspace";
+import { errorMessage, parseSettlementFile } from "@/lib/parsers";
 
 export const Route = createFileRoute("/app/imports")({
   head: () => ({
@@ -40,18 +41,8 @@ function ImportsRoute() {
   const handleFileUpload = (type: "orders" | "settlements") => async (file: File) => {
     try {
       setIsUploading(true);
-      const text = await file.text();
-      const isSwiggy = file.name.toLowerCase().includes("swiggy");
-      
-      let result;
-      if (isSwiggy) {
-        const { parseSwiggySettlement } = await import("@/lib/parsers/swiggy");
-        result = await parseSwiggySettlement(text);
-      } else {
-        const { parseZomatoSettlement } = await import("@/lib/parsers/zomato");
-        result = await parseZomatoSettlement(text);
-      }
-      
+      const result = await parseSettlementFile(file);
+
       const existingOrders = state.importedOrders || [];
       const existingSettlements = state.importedSettlements || [];
       const updatedOrders = [...existingOrders, ...result.orders];
@@ -67,8 +58,8 @@ function ImportsRoute() {
       setTimeout(() => {
         navigate({ to: "/app" });
       }, 1000);
-    } catch (e: any) {
-      toast.error(`Failed to parse file: ${e.message}`);
+    } catch (e: unknown) {
+      toast.error(`Failed to parse file: ${errorMessage(e)}`);
     } finally {
       setIsUploading(false);
     }
