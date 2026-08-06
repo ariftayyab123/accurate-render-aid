@@ -1,5 +1,4 @@
 import type { Order, SettlementOverrides, Settlement } from "@/data/types";
-import { v4 as uuidv4 } from "uuid";
 import { parseSettlementCsv, type RowMapper } from "./base";
 
 export async function parseSwiggySettlement(
@@ -23,7 +22,7 @@ export async function parseSwiggySettlement(
     const knownDeductions = serviceFee + gstOnServiceFee + paymentFee + adAllocation;
     const unauthorizedDeductions = Math.max(0, netDeductionsStated - knownDeductions);
 
-    const orderId = row["Order ID"] || uuidv4();
+    const orderId = row["Order ID"] || (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15));
 
     const order: Order = {
       id: orderId,

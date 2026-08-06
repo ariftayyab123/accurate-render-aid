@@ -1,6 +1,12 @@
 import Papa from "papaparse";
 import type { Order, SettlementOverrides, Settlement, ChannelCode } from "@/data/types";
-import { v4 as uuidv4 } from "uuid";
+
+function generateId(): string {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).substring(2, 15);
+}
 
 export type RowMapper = (row: any, overrides?: SettlementOverrides) => {
   order: Order;
@@ -39,7 +45,7 @@ export async function parseSettlementCsv(
         });
 
         const settlement: Settlement = {
-          id: uuidv4(),
+          id: generateId(),
           channel,
           periodStart: orders[0]?.placedAt || new Date().toISOString(),
           periodEnd: orders[orders.length - 1]?.placedAt || new Date().toISOString(),
