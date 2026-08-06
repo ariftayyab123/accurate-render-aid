@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Check, PlayCircle } from "lucide-react";
+import { ArrowRight, ArrowDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DEMO, money, pct } from "@/lib/marketing-stats";
 import type { SiteCopy } from "@/lib/site-copy";
 
-export function Hero({ copy, onDemo }: { copy: SiteCopy; onDemo: () => void }) {
+export function Hero({ copy, onExample }: { copy: SiteCopy; onExample: () => void }) {
   return (
     <section className="border-b border-border bg-surface">
       <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-24">
@@ -13,8 +13,10 @@ export function Hero({ copy, onDemo }: { copy: SiteCopy; onDemo: () => void }) {
           <p className="inline-flex rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
             {copy.hero.eyebrow}
           </p>
-          <h1 className="display mt-6 text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
-            {copy.hero.title}
+          <h1 className="display mt-6 text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.2rem]">
+            {copy.hero.titleBefore}{" "}
+            <span className="tabular text-primary">{money(DEMO.sales)}</span>{" "}
+            {copy.hero.titleAfter}
           </h1>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             {copy.hero.lead}
@@ -29,23 +31,18 @@ export function Hero({ copy, onDemo }: { copy: SiteCopy; onDemo: () => void }) {
             </Button>
             <Button
               size="lg"
-              variant="outline"
+              variant="ghost"
               className="h-12 gap-2 rounded-full px-6"
-              onClick={onDemo}
+              onClick={onExample}
             >
-              <PlayCircle className="size-4" />
               {copy.hero.secondary}
+              <ArrowDown className="size-4" />
             </Button>
           </div>
 
-          <ul className="mt-8 grid gap-2 text-sm text-muted-foreground sm:grid-cols-3">
-            {copy.hero.trust.map((line) => (
-              <li key={line} className="flex items-start gap-2">
-                <Check className="mt-0.5 size-4 shrink-0 text-primary" />
-                {line}
-              </li>
-            ))}
-          </ul>
+          <p className="mt-6 max-w-lg text-sm leading-relaxed text-muted-foreground">
+            {copy.hero.trust}
+          </p>
         </div>
 
         <div className="rounded-3xl border border-border bg-card p-7 shadow-xl sm:p-9">

@@ -4,37 +4,49 @@ export interface SiteCopy {
   nav: { signIn: string; demo: string; create: string; readIn: string };
   hero: {
     eyebrow: string;
-    title: string;
+    titleBefore: string;
+    titleAfter: string;
     lead: string;
     primary: string;
     secondary: string;
-    trust: string[];
+    trust: string;
     cardTitle: string;
     cardNote: string;
     sold: string;
     kept: string;
     ofSales: string;
   };
-  flow: {
+  gap: {
     title: string;
     lead: string;
+    items: { term: string; body: string }[];
+    note: string;
+  };
+  positioning: {
+    title: string;
+    lead: string;
+    rules: { title: string; body: string }[];
+  };
+  recon: {
+    title: string;
+    lead: string;
+    expected: string;
+    paid: string;
+    gap: string;
+    gapNote: string;
+    flowTitle: string;
     labels: Record<string, string>;
     note: string;
   };
-  questions: {
+  features: { title: string; lead: string; items: { title: string; body: string }[] };
+  audience: { title: string; lead: string; rows: { who: string; ask: string }[]; note: string };
+  market: {
     title: string;
-    lead: string;
-    items: { q: string; a: string; stat: string }[];
-  };
-  steps: { title: string; lead: string; items: { title: string; body: string }[] };
-  markets: {
-    title: string;
-    lead: string;
     india: { title: string; body: string };
     uae: { title: string; body: string };
   };
   faq: { title: string; lead: string; items: { q: string; a: string }[] };
-  cta: { title: string; lead: string; primary: string; secondary: string };
+  cta: { title: string; lead: string; primary: string; secondary: string; note: string };
   footer: string;
 }
 
@@ -42,85 +54,125 @@ const en: SiteCopy = {
   nav: { signIn: "Sign in", demo: "See the demo", create: "Create account", readIn: "Read in" },
   hero: {
     eyebrow: "For restaurants and cloud kitchens in India and the UAE",
-    title: "You know what you sold. Do you know what you kept?",
-    lead: "Retained takes your orders from Zomato, Swiggy, Talabat or your own counter and shows what was left after commission, tax on fees, payment charges, ads, your discounts and the cost of the food. Every number opens up and shows its own working.",
-    primary: "Create your free account",
-    secondary: "Open the demo restaurant",
-    trust: [
-      "Works with your existing POS and app reports",
-      "Set up in one sitting",
-      "Every figure can be opened and checked",
-    ],
+    titleBefore: "You sold",
+    titleAfter: "last month. How much did you actually keep?",
+    lead: "Zomato and Swiggy show you sales. Your bank shows you a settlement. Nobody shows you what happened in between — commission, GST on that commission, ad spend, discounts you didn't approve, packaging, food cost. Retained does.",
+    primary: "Show me what I kept",
+    secondary: "See it work on a real example",
+    trust:
+      "No credit card. Uses your own settlement file — nothing invented, nothing estimated without telling you.",
     cardTitle: "A real month from the demo kitchen",
     cardNote: "Sample data built for this prototype, not live platform data.",
     sold: "You sold",
     kept: "You kept",
     ofSales: "of sales stayed with the kitchen",
   },
-  flow: {
-    title: "Where the money actually goes",
-    lead: "One month, 431 orders. This is the same order data the demo workspace uses — every slice below is a line you can open.",
+  gap: {
+    title: "The number on your dashboard was never the number in your bank",
+    lead: "Every restaurant owner selling on Zomato or Swiggy knows this feeling: the app says you did great this month. The bank account disagrees. Somewhere between gross sales and settlement received is a pile of PDFs nobody has time to read line by line.",
+    items: [
+      { term: "Commission", body: "15–30% depending on your plan, city and category." },
+      { term: "GST on that commission", body: "18%, charged on top of the commission itself." },
+      { term: "Payment gateway and platform fees", body: "A few percent, on every order." },
+      { term: "Ad spend", body: "Sometimes approved, sometimes not." },
+      {
+        term: "Discounts",
+        body: "Funded by the platform, or funded by you — and it is not always clear which.",
+      },
+      {
+        term: "TDS",
+        body: "Withheld before you are paid, but yours to claim back at filing. Not a real cost.",
+      },
+    ],
+    note: "Most owners just watch the total and hope it is roughly right. It usually isn't.",
+  },
+  positioning: {
+    title: "Not a POS. Not accounting software. Not another AI dashboard.",
+    lead: "Retained reads your actual Zomato and Swiggy settlement file and shows you, order by order, exactly where every rupee went — and whether any of it shouldn't have.",
+    rules: [
+      {
+        title: "Money before activity",
+        body: "Every screen leads with what you kept, not how many orders you got. Order count doesn't pay your rent.",
+      },
+      {
+        title: "Every number opens up",
+        body: "Click any figure and see exactly what it is built from — no black box, no trust us.",
+      },
+      {
+        title: "We never say Net Profit",
+        body: "Rent, salaries and utilities aren't in this calculation, and pretending otherwise would be dishonest. We call it Estimated Contribution, and we tell you when a figure is imported straight from your statement versus estimated.",
+      },
+    ],
+  },
+  recon: {
+    title: "Upload one settlement file. See what matched — and what didn't.",
+    lead: "Within minutes of uploading a real Zomato or Swiggy settlement report, Retained shows what your payout should have been, what the platform actually paid, and any gap — down to the line item. If a deduction can't be explained, it is flagged on your dashboard in plain language, not buried in a PDF.",
+    expected: "What your payout should have been",
+    paid: "What the platform actually paid",
+    gap: "Unexplained deductions, flagged",
+    gapNote: "Ad charges with no matching campaign on record in the demo month.",
+    flowTitle: "Where the money actually went",
     labels: {
       sales: "What customers paid",
       commission: "App commission",
-      taxOnFees: "Tax on those fees",
+      taxOnFees: "GST on that commission",
       payment: "Payment charges",
-      ads: "Ads you ran on the apps",
+      ads: "Ads charged to you",
       discounts: "Discounts you funded",
       food: "Food and packing",
       kept: "What you kept",
     },
-    note: "This is money kept before rent, salaries and electricity. We never call it net profit.",
+    note: "One month, 431 orders of sample data. This is money kept before rent, salaries and electricity — we never call it net profit.",
   },
-  questions: {
-    title: "The three questions owners actually ask",
-    lead: "Not dashboards. Answers.",
+  features: {
+    title: "From what happened to what to do about it",
+    lead: "Five screens, one question each.",
     items: [
       {
-        q: "How much does Zomato or Swiggy really take?",
-        a: "Commission is only the first cut. Add the tax on that commission, the payment charge, the ad spend and the discounts you funded, and the real deduction is much larger than the rate in your contract.",
-        stat: "of Zomato sales left as platform charges in the demo month",
+        title: "Overview",
+        body: "One screen, your real numbers: money kept, channel-by-channel keep-rate, and what changed since last period.",
       },
       {
-        q: "Which dish is quietly losing money?",
-        a: "A dish can sell every day and still leave you almost nothing once app charges and packing are spread across it. Retained ranks every item by what it keeps, not by how often it sells.",
-        stat: "kept on the weakest-selling-well dish in the demo month",
+        title: "Order-level drill-down",
+        body: "Pick any order. See its full economics — commission, fees, discounts, food cost — traced from gross sale to what actually landed in your account.",
       },
       {
-        q: "Which channel is worth pushing?",
-        a: "Compare what each app kept for you per ₹100 of sales, side by side with your direct and walk-in orders, before you spend another rupee on visibility.",
-        stat: "kept on direct orders versus the apps",
+        title: "Menu profitability",
+        body: "Not every popular dish is a good dish. See which items are quietly losing you money on every plate, and which ones deserve more attention than they're getting.",
+      },
+      {
+        title: "Channel comparison",
+        body: "Zomato or Swiggy — which one is actually worth pushing this month? Not by sales volume. By what you keep.",
+      },
+      {
+        title: "One recommendation, not a hundred metrics",
+        body: "Every period, Retained gives you one clear, actionable call — a channel to push, a dish to reprice, a deduction to dispute.",
       },
     ],
   },
-  steps: {
-    title: "How it works",
-    lead: "Three steps, one sitting.",
-    items: [
+  audience: {
+    title: "Who this is for",
+    lead: "Four owners, four questions, one dataset.",
+    rows: [
+      { who: "Single-outlet owner", ask: "Which app is actually worth pushing this month?" },
+      { who: "Cloud-kitchen operator", ask: "Which of my dishes is quietly bleeding money?" },
+      { who: "Multi-outlet owner", ask: "Which outlet's channel mix is wrong?" },
       {
-        title: "Add your menu and what each dish costs",
-        body: "Prices per channel, food cost and packing cost. This is the only setup work.",
-      },
-      {
-        title: "Bring in your orders and settlements",
-        body: "Upload the reports you already download from the apps, or start with the demo dataset.",
-      },
-      {
-        title: "Open any number and see the maths",
-        body: "Every figure has a calculation drawer showing exactly which lines produced it.",
+        who: "Manager or accountant",
+        ask: "Did the platform actually pay what it said it would?",
       },
     ],
+    note: "Retained answers all four from the same data.",
   },
-  markets: {
+  market: {
     title: "Built for your market",
-    lead: "Currency, channels and language follow where your kitchen is.",
     india: {
-      title: "India — Zomato, Swiggy and direct orders",
-      body: "Rupee formatting with Indian grouping, GST on platform fees handled as its own line, restaurant-funded discounts kept separate from platform offers, and the whole app readable in Hindi.",
+      title: "India",
+      body: "Built for Indian restaurant accounting — GST on commission handled correctly, TDS under Section 194-O tracked separately as the tax credit it is, not folded into your losses.",
     },
     uae: {
-      title: "UAE — Talabat, Deliveroo, Careem and Noon",
-      body: "Dirham formatting, Gulf delivery channels, and an Arabic interface that flips to right-to-left. Same contribution maths, your market's aggregators.",
+      title: "UAE",
+      body: "Built for the UAE market — AED, VAT-aware, and Talabat, Careem, Deliveroo and Noon in one view.",
     },
   },
   faq: {
@@ -128,36 +180,33 @@ const en: SiteCopy = {
     lead: "Short, honest answers.",
     items: [
       {
-        q: "How much commission does Zomato take from restaurants?",
-        a: "The headline commission on a partner contract typically sits somewhere in the high teens to mid twenties of order value, but that is not the full deduction. Tax on the commission, payment gateway charges, promotional ad spend and any discount you funded all come out too. Retained shows your own actual rate from your own settlement reports instead of a generic figure.",
+        q: "How much commission do Zomato and Swiggy actually take?",
+        a: "Headline commission (15–30%) is only part of it. After GST on commission, payment gateway fees, ad spend and discount funding, the real deduction is often 8–12 percentage points higher than the number in your contract. Retained calculates your actual rate from your own settlement data, not an industry average.",
       },
       {
-        q: "How is a Swiggy payout calculated?",
-        a: "Start from what the customer paid, subtract the discount you funded and any refunds, then subtract commission, tax on that commission, payment charges, ad allocation and adjustments. What lands in your bank is the remainder. Retained rebuilds that chain order by order so you can match it against the payout that actually arrived.",
+        q: "Why is my Zomato/Swiggy payout smaller than expected?",
+        a: "Usually one or more of: GST on the platform's commission, promotional discount co-funding, ad charges, refund adjustments, or TDS withheld under Section 194-O. Retained breaks down every deduction on every order so you can see exactly which one.",
       },
       {
-        q: "What is a good profit margin for a restaurant?",
-        a: "There is no single number, and anyone quoting one is guessing. What matters is your contribution — what is left after platform charges, discounts and the cost of the food — because rent, salaries and electricity still have to come out of it. Retained tracks that figure per channel so you can watch it move rather than compare yourself to an average.",
+        q: "Does my restaurant have to pay GST on Zomato/Swiggy orders?",
+        a: "No — since January 2022, the platform is liable for GST on the order itself under Section 9(5) of the CGST Act. You only pay GST on the commission fee the platform charges you. Retained applies this correctly by default.",
       },
       {
-        q: "How do I work out profit for a single dish?",
-        a: "Take the dish's sales, subtract its food and packing cost, then allocate a fair share of the order's platform charges and discounts to it. Retained does that allocation automatically for every item and sorts your menu by what each dish actually keeps.",
+        q: "Can Zomato or Swiggy deduct ad spend or discounts without my approval?",
+        a: "It happens more than most owners realise, and it is often only visible after the fact in the settlement statement. This is exactly what Retained's reconciliation flags.",
       },
       {
-        q: "Does this work for a cloud kitchen with no dine-in?",
-        a: "Yes. Cloud kitchens usually depend most on aggregator orders, which is exactly where the deductions pile up, so the channel comparison tends to be more useful, not less.",
-      },
-      {
-        q: "Does it work for restaurants in Dubai and the wider UAE?",
-        a: "Yes. Choose the UAE during setup and the workspace switches to dirhams and Gulf delivery channels such as Talabat, Deliveroo, Careem and Noon Food, with an Arabic interface available.",
+        q: "Is this an accounting tool?",
+        a: "No. We show you where your money went so you can make better decisions about pricing, channels and the menu. We're not a substitute for your accountant, and we don't file anything for you.",
       },
     ],
   },
   cta: {
-    title: "Find out what last month actually left you",
-    lead: "Create a free owner account, or look through the demo kitchen first — no account needed.",
-    primary: "Create your free account",
-    secondary: "Open the demo restaurant",
+    title: "Fifteen minutes. One settlement file. A real answer.",
+    lead: "You don't need to guess anymore. Upload one file, and see exactly what you kept — and what you didn't.",
+    primary: "Show me what I kept",
+    secondary: "Explore with sample data",
+    note: "No commitment. No card. Skip to explore with sample data if you'd rather look around first.",
   },
   footer:
     "Contribution and margin are estimates based on the data you supply. Retained never labels them as net profit.",
@@ -167,85 +216,122 @@ const hi: SiteCopy = {
   nav: { signIn: "साइन इन", demo: "डेमो देखें", create: "खाता बनाएँ", readIn: "पढ़ें" },
   hero: {
     eyebrow: "भारत और यूएई के रेस्टोरेंट और क्लाउड किचन के लिए",
-    title: "बिक्री तो आपको पता है। लेकिन बचा कितना?",
-    lead: "Retained आपके ज़ोमैटो, स्विगी, तलाबात या काउंटर के ऑर्डर लेकर दिखाता है कि कमीशन, उस पर टैक्स, पेमेंट चार्ज, विज्ञापन, आपकी छूट और खाने की लागत के बाद कितना बचा। हर आँकड़ा खोलकर उसका पूरा हिसाब देखा जा सकता है।",
-    primary: "मुफ़्त खाता बनाएँ",
-    secondary: "डेमो रेस्टोरेंट खोलें",
-    trust: [
-      "आपके मौजूदा POS और ऐप रिपोर्ट के साथ चलता है",
-      "एक ही बैठक में सेटअप",
-      "हर आँकड़ा खोलकर जाँचा जा सकता है",
-    ],
+    titleBefore: "पिछले महीने आपने बेचा",
+    titleAfter: "। असल में आपके पास बचा कितना?",
+    lead: "ज़ोमैटो और स्विगी आपको बिक्री दिखाते हैं। बैंक आपको सेटलमेंट दिखाता है। बीच में क्या हुआ — कमीशन, उस पर GST, विज्ञापन, वे छूट जिन्हें आपने मंज़ूरी नहीं दी, पैकिंग, खाने की लागत — वह कोई नहीं दिखाता। Retained दिखाता है।",
+    primary: "दिखाइए मेरे पास क्या बचा",
+    secondary: "असली उदाहरण पर चलकर देखिए",
+    trust:
+      "कोई कार्ड नहीं। आपकी अपनी सेटलमेंट फ़ाइल से — कुछ भी गढ़ा नहीं जाता, और अनुमान हो तो बता दिया जाता है।",
     cardTitle: "डेमो किचन का एक पूरा महीना",
     cardNote: "यह प्रोटोटाइप के लिए बनाया गया नमूना डेटा है, असली प्लेटफ़ॉर्म डेटा नहीं।",
     sold: "आपने बेचा",
     kept: "आपके पास बचा",
     ofSales: "बिक्री का हिस्सा किचन के पास रहा",
   },
-  flow: {
-    title: "पैसा असल में जाता कहाँ है",
-    lead: "एक महीना, 431 ऑर्डर। यही डेटा डेमो वर्कस्पेस में भी है — नीचे का हर हिस्सा खोलकर देखा जा सकता है।",
+  gap: {
+    title: "डैशबोर्ड का आँकड़ा कभी बैंक का आँकड़ा नहीं था",
+    lead: "हर मालिक यह महसूस करता है: ऐप कहता है महीना शानदार गया, बैंक खाता कुछ और कहता है। ग्रॉस बिक्री और मिले हुए सेटलमेंट के बीच PDF का ढेर है, जिसे लाइन दर लाइन पढ़ने का वक़्त किसी के पास नहीं।",
+    items: [
+      { term: "कमीशन", body: "प्लान, शहर और श्रेणी के हिसाब से 15–30%।" },
+      { term: "उस कमीशन पर GST", body: "18%, कमीशन के ऊपर से।" },
+      { term: "पेमेंट गेटवे और प्लेटफ़ॉर्म फ़ीस", body: "हर ऑर्डर पर कुछ प्रतिशत।" },
+      { term: "विज्ञापन खर्च", body: "कभी मंज़ूर किया हुआ, कभी नहीं।" },
+      {
+        term: "छूट",
+        body: "प्लेटफ़ॉर्म की तरफ़ से या आपकी तरफ़ से — और यह हमेशा साफ़ नहीं होता कि किसकी।",
+      },
+      {
+        term: "TDS",
+        body: "भुगतान से पहले काटा जाता है, पर फ़ाइलिंग में वापस मिलने वाला क्रेडिट है। यह लागत नहीं है।",
+      },
+    ],
+    note: "ज़्यादातर मालिक बस कुल आँकड़ा देखकर मान लेते हैं कि सब ठीक होगा। अक्सर नहीं होता।",
+  },
+  positioning: {
+    title: "न POS, न अकाउंटिंग सॉफ़्टवेयर, न एक और AI डैशबोर्ड।",
+    lead: "Retained आपकी असली ज़ोमैटो और स्विगी सेटलमेंट फ़ाइल पढ़ता है और ऑर्डर दर ऑर्डर दिखाता है कि हर रुपया कहाँ गया — और कहीं वह जाना नहीं चाहिए था तो वह भी।",
+    rules: [
+      {
+        title: "गतिविधि से पहले पैसा",
+        body: "हर स्क्रीन पहले बताती है कि आपके पास क्या बचा, यह नहीं कि कितने ऑर्डर आए। ऑर्डर की गिनती किराया नहीं भरती।",
+      },
+      {
+        title: "हर आँकड़ा खुलता है",
+        body: "किसी भी आँकड़े पर क्लिक कीजिए और देखिए वह किन लाइनों से बना — कोई ब्लैक बॉक्स नहीं।",
+      },
+      {
+        title: "हम कभी नेट प्रॉफ़िट नहीं कहते",
+        body: "किराया, तनख़्वाह और बिजली इस हिसाब में नहीं हैं, और इसे मुनाफ़ा कहना बेईमानी होगी। हम इसे अनुमानित कॉन्ट्रिब्यूशन कहते हैं, और बताते हैं कि कोई आँकड़ा स्टेटमेंट से आया है या अनुमान है।",
+      },
+    ],
+  },
+  recon: {
+    title: "एक सेटलमेंट फ़ाइल अपलोड कीजिए। देखिए क्या मिला और क्या नहीं।",
+    lead: "असली सेटलमेंट रिपोर्ट अपलोड करने के मिनटों में Retained बताता है कि आपका पेआउट कितना होना चाहिए था, प्लेटफ़ॉर्म ने असल में कितना दिया, और अंतर किस लाइन आइटम से आया। जो कटौती समझ में न आए उसे साफ़ भाषा में फ़्लैग किया जाता है — PDF में दबाकर नहीं।",
+    expected: "आपका पेआउट कितना होना चाहिए था",
+    paid: "प्लेटफ़ॉर्म ने असल में दिया",
+    gap: "बिना कारण की कटौती, फ़्लैग की गई",
+    gapNote: "डेमो महीने में ऐसे विज्ञापन चार्ज जिनका कोई मेल खाता कैंपेन रिकॉर्ड में नहीं है।",
+    flowTitle: "पैसा असल में गया कहाँ",
     labels: {
       sales: "ग्राहक ने जो चुकाया",
       commission: "ऐप कमीशन",
-      taxOnFees: "उस फ़ीस पर टैक्स",
+      taxOnFees: "उस कमीशन पर GST",
       payment: "पेमेंट चार्ज",
-      ads: "ऐप पर चलाए विज्ञापन",
+      ads: "आप पर लगे विज्ञापन चार्ज",
       discounts: "आपकी दी हुई छूट",
       food: "खाना और पैकिंग",
       kept: "आपके पास बचा",
     },
-    note: "यह किराया, तनख़्वाह और बिजली से पहले का पैसा है। हम इसे कभी नेट प्रॉफ़िट नहीं कहते।",
+    note: "एक महीना, 431 ऑर्डर का नमूना डेटा। यह किराया, तनख़्वाह और बिजली से पहले का पैसा है — हम इसे कभी नेट प्रॉफ़िट नहीं कहते।",
   },
-  questions: {
-    title: "मालिक असल में यही तीन सवाल पूछते हैं",
-    lead: "डैशबोर्ड नहीं, जवाब।",
+  features: {
+    title: "क्या हुआ से लेकर अब करना क्या है तक",
+    lead: "पाँच स्क्रीन, हर एक का एक सवाल।",
     items: [
       {
-        q: "ज़ोमैटो या स्विगी असल में कितना लेते हैं?",
-        a: "कमीशन सिर्फ़ पहली कटौती है। उस पर टैक्स, पेमेंट चार्ज, विज्ञापन और आपकी दी हुई छूट जोड़िए — असली कटौती कॉन्ट्रैक्ट की दर से कहीं ज़्यादा निकलती है।",
-        stat: "डेमो महीने में ज़ोमैटो की बिक्री का इतना हिस्सा प्लेटफ़ॉर्म चार्ज में गया",
+        title: "ओवरव्यू",
+        body: "एक ही स्क्रीन पर आपके असली आँकड़े: कितना बचा, हर चैनल की कीप-रेट, और पिछली अवधि से क्या बदला।",
       },
       {
-        q: "कौन-सी डिश चुपचाप नुक़सान करा रही है?",
-        a: "कोई डिश रोज़ बिक सकती है और फिर भी ऐप चार्ज और पैकिंग के बाद कुछ ख़ास नहीं छोड़ती। Retained हर आइटम को बिक्री से नहीं, बचत से क्रम में लगाता है।",
-        stat: "डेमो महीने की सबसे कमज़ोर मार्जिन वाली डिश पर बचा",
+        title: "ऑर्डर-स्तर का ब्यौरा",
+        body: "कोई भी ऑर्डर चुनिए और उसका पूरा हिसाब देखिए — कमीशन, फ़ीस, छूट, खाने की लागत — बिक्री से लेकर खाते में आए पैसे तक।",
       },
       {
-        q: "किस चैनल पर ज़ोर देना सही है?",
-        a: "हर ₹100 की बिक्री पर किस ऐप ने आपके पास कितना छोड़ा — इसे अपने डायरेक्ट और वॉक-इन ऑर्डर के साथ रखकर देखिए, विज्ञापन पर और पैसा लगाने से पहले।",
-        stat: "ऐप के मुक़ाबले डायरेक्ट ऑर्डर पर बचा",
+        title: "मेन्यू प्रॉफ़िटेबिलिटी",
+        body: "हर लोकप्रिय डिश अच्छी डिश नहीं होती। देखिए कौन-सा आइटम हर प्लेट पर चुपचाप नुक़सान करा रहा है।",
+      },
+      {
+        title: "चैनल तुलना",
+        body: "ज़ोमैटो या स्विगी — इस महीने किस पर ज़ोर देना सही है? बिक्री से नहीं, बचत से।",
+      },
+      {
+        title: "सौ आँकड़े नहीं, एक सलाह",
+        body: "हर अवधि में Retained एक साफ़ काम बताता है — कौन-सा चैनल बढ़ाएँ, कौन-सी डिश की क़ीमत बदलें, किस कटौती पर सवाल उठाएँ।",
       },
     ],
   },
-  steps: {
-    title: "यह काम कैसे करता है",
-    lead: "तीन क़दम, एक ही बैठक।",
-    items: [
-      {
-        title: "मेन्यू और हर डिश की लागत डालिए",
-        body: "हर चैनल की क़ीमत, खाने की लागत और पैकिंग लागत। सेटअप का काम बस इतना है।",
-      },
-      {
-        title: "ऑर्डर और सेटलमेंट लाइए",
-        body: "जो रिपोर्ट आप ऐप से पहले से डाउनलोड करते हैं वही अपलोड कीजिए, या डेमो डेटा से शुरू कीजिए।",
-      },
-      {
-        title: "कोई भी आँकड़ा खोलिए और हिसाब देखिए",
-        body: "हर आँकड़े के साथ उसका पूरा कैलकुलेशन खुलता है — कौन-सी लाइन से क्या बना।",
-      },
+  audience: {
+    title: "यह किसके लिए है",
+    lead: "चार तरह के मालिक, चार सवाल, एक ही डेटा।",
+    rows: [
+      { who: "एक आउटलेट के मालिक", ask: "इस महीने किस ऐप पर ज़ोर देना सही है?" },
+      { who: "क्लाउड किचन ऑपरेटर", ask: "मेरी कौन-सी डिश चुपचाप पैसा खा रही है?" },
+      { who: "कई आउटलेट के मालिक", ask: "किस आउटलेट का चैनल मिक्स ग़लत है?" },
+      { who: "मैनेजर या अकाउंटेंट", ask: "क्या प्लेटफ़ॉर्म ने वही दिया जो कहा था?" },
     ],
+    note: "Retained चारों जवाब एक ही डेटा से देता है।",
   },
-  markets: {
+  market: {
     title: "आपके बाज़ार के लिए बना",
-    lead: "मुद्रा, चैनल और भाषा वहीं के हिसाब से जहाँ आपका किचन है।",
     india: {
-      title: "भारत — ज़ोमैटो, स्विगी और डायरेक्ट ऑर्डर",
-      body: "भारतीय ढंग की रुपये फ़ॉर्मेटिंग, प्लेटफ़ॉर्म फ़ीस पर GST अलग लाइन में, आपकी दी हुई छूट प्लेटफ़ॉर्म की छूट से अलग, और पूरा ऐप हिंदी में।",
+      title: "भारत",
+      body: "भारतीय रेस्टोरेंट अकाउंटिंग के हिसाब से — कमीशन पर GST सही तरीक़े से, और धारा 194-O का TDS अलग से टैक्स क्रेडिट की तरह, नुक़सान में जोड़े बिना।",
     },
     uae: {
-      title: "यूएई — तलाबात, डेलीवरू, करीम और नून",
-      body: "दिरहम फ़ॉर्मेटिंग, खाड़ी के डिलीवरी चैनल और दाएँ-से-बाएँ चलने वाला अरबी इंटरफ़ेस। हिसाब वही, ऐप आपके बाज़ार के।",
+      title: "यूएई",
+      body: "यूएई बाज़ार के लिए — दिरहम, VAT का ध्यान, और तलाबात, करीम, डेलीवरू तथा नून एक ही जगह।",
     },
   },
   faq: {
@@ -253,36 +339,33 @@ const hi: SiteCopy = {
     lead: "छोटे और सीधे जवाब।",
     items: [
       {
-        q: "ज़ोमैटो रेस्टोरेंट से कितना कमीशन लेता है?",
-        a: "पार्टनर कॉन्ट्रैक्ट में कमीशन आमतौर पर ऑर्डर मूल्य के क़रीब बीस प्रतिशत के आसपास रहता है, पर कटौती यहीं ख़त्म नहीं होती। उस पर टैक्स, पेमेंट गेटवे चार्ज, विज्ञापन और आपकी दी छूट भी घटती है। Retained आपकी अपनी सेटलमेंट रिपोर्ट से आपकी असली दर निकालता है।",
+        q: "ज़ोमैटो और स्विगी असल में कितना कमीशन लेते हैं?",
+        a: "कॉन्ट्रैक्ट का कमीशन (15–30%) पूरी कहानी नहीं है। कमीशन पर GST, पेमेंट गेटवे फ़ीस, विज्ञापन और छूट जोड़ने के बाद असली कटौती अक्सर 8–12 प्रतिशत अंक ज़्यादा निकलती है। Retained आपकी अपनी सेटलमेंट फ़ाइल से आपकी असली दर निकालता है।",
       },
       {
-        q: "स्विगी का पेआउट कैसे बनता है?",
-        a: "ग्राहक ने जो चुकाया उससे शुरू कीजिए, फिर आपकी छूट और रिफ़ंड घटाइए, उसके बाद कमीशन, उस पर टैक्स, पेमेंट चार्ज, विज्ञापन हिस्सा और एडजस्टमेंट। जो बचा वही बैंक में आता है। Retained यह पूरी कड़ी हर ऑर्डर के लिए दोबारा बनाता है।",
+        q: "मेरा पेआउट उम्मीद से कम क्यों आया?",
+        a: "आमतौर पर इनमें से कोई: कमीशन पर GST, प्रोमो छूट में आपका हिस्सा, विज्ञापन चार्ज, रिफ़ंड एडजस्टमेंट, या धारा 194-O के तहत काटा गया TDS। Retained हर ऑर्डर की हर कटौती अलग-अलग दिखाता है।",
       },
       {
-        q: "रेस्टोरेंट के लिए अच्छा प्रॉफ़िट मार्जिन कितना है?",
-        a: "कोई एक आँकड़ा नहीं होता। असल बात है आपका कॉन्ट्रिब्यूशन — प्लेटफ़ॉर्म चार्ज, छूट और खाने की लागत के बाद जो बचा, क्योंकि किराया, तनख़्वाह और बिजली इसी में से जाती है। Retained इसे हर चैनल के लिए दिखाता है।",
+        q: "क्या ज़ोमैटो/स्विगी ऑर्डर पर मुझे GST देना होता है?",
+        a: "नहीं। जनवरी 2022 से CGST एक्ट की धारा 9(5) के तहत ऑर्डर पर GST की ज़िम्मेदारी प्लेटफ़ॉर्म की है। आप केवल प्लेटफ़ॉर्म की कमीशन फ़ीस पर GST देते हैं। Retained यह डिफ़ॉल्ट रूप से सही लगाता है।",
       },
       {
-        q: "एक डिश का मुनाफ़ा कैसे निकालें?",
-        a: "डिश की बिक्री से उसकी खाने और पैकिंग लागत घटाइए, फिर ऑर्डर के प्लेटफ़ॉर्म चार्ज और छूट का उचित हिस्सा उस पर डालिए। Retained यह हिसाब हर आइटम के लिए ख़ुद करता है।",
+        q: "क्या प्लेटफ़ॉर्म बिना मंज़ूरी विज्ञापन या छूट काट सकते हैं?",
+        a: "यह जितना लगता है उससे ज़्यादा होता है, और अक्सर बाद में सेटलमेंट स्टेटमेंट में ही दिखता है। Retained का रिकंसिलिएशन ठीक यही फ़्लैग करता है।",
       },
       {
-        q: "क्या यह बिना डाइन-इन वाले क्लाउड किचन के लिए भी है?",
-        a: "हाँ। क्लाउड किचन ज़्यादातर ऐप ऑर्डर पर टिके होते हैं, और कटौती वहीं सबसे ज़्यादा होती है — इसलिए चैनल तुलना और भी काम की हो जाती है।",
-      },
-      {
-        q: "क्या यह दुबई और यूएई के रेस्टोरेंट के लिए चलता है?",
-        a: "हाँ। सेटअप में यूएई चुनिए और वर्कस्पेस दिरहम तथा तलाबात, डेलीवरू, करीम और नून फ़ूड जैसे चैनलों पर चला जाता है, अरबी इंटरफ़ेस के साथ।",
+        q: "क्या यह अकाउंटिंग टूल है?",
+        a: "नहीं। हम दिखाते हैं कि पैसा कहाँ गया ताकि आप क़ीमत, चैनल और मेन्यू पर बेहतर फ़ैसले ले सकें। यह आपके अकाउंटेंट का विकल्प नहीं है और हम कोई फ़ाइलिंग नहीं करते।",
       },
     ],
   },
   cta: {
-    title: "देखिए पिछले महीने आपके पास असल में क्या बचा",
-    lead: "मुफ़्त खाता बनाइए, या पहले डेमो किचन देख लीजिए — खाते की ज़रूरत नहीं।",
-    primary: "मुफ़्त खाता बनाएँ",
-    secondary: "डेमो रेस्टोरेंट खोलें",
+    title: "पंद्रह मिनट। एक सेटलमेंट फ़ाइल। एक सच्चा जवाब।",
+    lead: "अब अंदाज़ा लगाने की ज़रूरत नहीं। एक फ़ाइल अपलोड कीजिए और देखिए क्या बचा — और क्या नहीं।",
+    primary: "दिखाइए मेरे पास क्या बचा",
+    secondary: "नमूना डेटा से देखिए",
+    note: "कोई शर्त नहीं, कोई कार्ड नहीं। चाहें तो पहले नमूना डेटा में घूम लीजिए।",
   },
   footer:
     "कॉन्ट्रिब्यूशन और मार्जिन आपके दिए डेटा पर आधारित अनुमान हैं। Retained इन्हें कभी नेट प्रॉफ़िट नहीं कहता।",
@@ -292,85 +375,115 @@ const ar: SiteCopy = {
   nav: { signIn: "تسجيل الدخول", demo: "شاهد العرض", create: "إنشاء حساب", readIn: "اقرأ بـ" },
   hero: {
     eyebrow: "للمطاعم والمطابخ السحابية في الإمارات والهند",
-    title: "تعرف كم بِعت. لكن كم بقي لك؟",
-    lead: "يأخذ Retained طلباتك من طلبات، ديليفرو، كريم أو من الصالة، ويُظهر ما تبقّى بعد العمولة والضريبة عليها ورسوم الدفع والإعلانات وخصوماتك وتكلفة الطعام. كل رقم يمكن فتحه لرؤية طريقة حسابه.",
-    primary: "أنشئ حسابك المجاني",
-    secondary: "افتح المطعم التجريبي",
-    trust: [
-      "يعمل مع نظام نقاط البيع وتقارير التطبيقات لديك",
-      "الإعداد في جلسة واحدة",
-      "كل رقم قابل للفتح والتحقق",
-    ],
+    titleBefore: "بِعتَ الشهر الماضي",
+    titleAfter: "— فكم بقي لك فعلاً؟",
+    lead: "تُظهر لك التطبيقات المبيعات، ويُظهر لك البنك التسوية. أما ما حدث بينهما — العمولة والضريبة عليها والإعلانات وخصومات لم توافق عليها والتغليف وتكلفة الطعام — فلا يُظهره أحد. Retained يفعل.",
+    primary: "أرني ما بقي لي",
+    secondary: "شاهدها على مثال حقيقي",
+    trust: "بدون بطاقة. من ملف التسوية الخاص بك — لا شيء مُختلق، وأي تقدير نخبرك به.",
     cardTitle: "شهر كامل من المطبخ التجريبي",
     cardNote: "بيانات عيّنة أُعدّت لهذا النموذج، وليست بيانات منصّة حقيقية.",
     sold: "مبيعاتك",
     kept: "ما بقي لك",
     ofSales: "من المبيعات بقي في المطبخ",
   },
-  flow: {
-    title: "أين يذهب المال فعلاً",
-    lead: "شهر واحد، 431 طلباً. البيانات نفسها الموجودة في مساحة العمل التجريبية — وكل جزء أدناه يمكن فتحه.",
+  gap: {
+    title: "الرقم في لوحة التطبيق لم يكن يوماً الرقم في حسابك البنكي",
+    lead: "يعرف كل صاحب مطعم هذا الشعور: التطبيق يقول إن الشهر كان ممتازاً، والحساب البنكي يقول غير ذلك. بين إجمالي المبيعات والتسوية المستلمة كومة من ملفات PDF لا وقت لأحد لقراءتها سطراً سطراً.",
+    items: [
+      { term: "العمولة", body: "من 15% إلى 30% حسب الباقة والمدينة والفئة." },
+      { term: "الضريبة على العمولة", body: "تُضاف فوق العمولة نفسها." },
+      { term: "رسوم الدفع والمنصّة", body: "نسبة قليلة على كل طلب." },
+      { term: "الإنفاق الإعلاني", body: "أحياناً بموافقتك، وأحياناً لا." },
+      { term: "الخصومات", body: "تتحمّلها المنصّة أو تتحمّلها أنت — وليس واضحاً دائماً أيّهما." },
+      { term: "الضريبة المقتطعة", body: "تُخصم قبل الدفع لكنها رصيد ضريبي لك، لا تكلفة حقيقية." },
+    ],
+    note: "معظم الملاك يكتفون بمتابعة الإجمالي على أمل أنه صحيح تقريباً. غالباً ليس كذلك.",
+  },
+  positioning: {
+    title: "ليس نظام نقاط بيع، ولا برنامج محاسبة، ولا لوحة ذكاء اصطناعي أخرى.",
+    lead: "يقرأ Retained ملف التسوية الحقيقي ويُظهر لك، طلباً بطلب، أين ذهب كل درهم — وما إذا كان بعضه ما كان يجب أن يذهب.",
+    rules: [
+      {
+        title: "المال قبل النشاط",
+        body: "كل شاشة تبدأ بما بقي لك، لا بعدد الطلبات. عدد الطلبات لا يدفع الإيجار.",
+      },
+      {
+        title: "كل رقم يُفتح",
+        body: "اضغط أي رقم لترى مِمَّ تكوّن بالضبط — بلا صندوق أسود.",
+      },
+      {
+        title: "لا نقول صافي ربح أبداً",
+        body: "الإيجار والرواتب والمرافق ليست ضمن هذا الحساب، وتسميته ربحاً صافياً غير أمين. نسمّيه المساهمة التقديرية، ونوضّح ما إذا كان الرقم مستورداً من كشفك أم تقديرياً.",
+      },
+    ],
+  },
+  recon: {
+    title: "ارفع ملف تسوية واحداً. شاهد ما تطابق وما لم يتطابق.",
+    lead: "خلال دقائق من رفع تقرير تسوية حقيقي، يُظهر Retained ما كان يجب أن تكون عليه دفعتك، وما دفعته المنصّة فعلاً، وأي فارق حتى مستوى البند. وأي خصم لا يمكن تفسيره يُعلَّم بلغة واضحة، لا مدفوناً في ملف PDF.",
+    expected: "ما كان يجب أن تكون عليه دفعتك",
+    paid: "ما دفعته المنصّة فعلاً",
+    gap: "خصومات غير مُفسَّرة، مُعلَّمة",
+    gapNote: "رسوم إعلانية بلا حملة مطابقة في سجلّ الشهر التجريبي.",
+    flowTitle: "أين ذهب المال فعلاً",
     labels: {
       sales: "ما دفعه العملاء",
       commission: "عمولة التطبيق",
-      taxOnFees: "الضريبة على الرسوم",
+      taxOnFees: "الضريبة على العمولة",
       payment: "رسوم الدفع",
-      ads: "إعلاناتك على التطبيقات",
+      ads: "رسوم إعلانية عليك",
       discounts: "الخصومات التي تحمّلتها",
       food: "الطعام والتغليف",
       kept: "ما بقي لك",
     },
-    note: "هذا المبلغ قبل الإيجار والرواتب والكهرباء. نحن لا نسمّيه صافي ربح.",
+    note: "شهر واحد، 431 طلباً من بيانات العيّنة. هذا المبلغ قبل الإيجار والرواتب والكهرباء — ولا نسمّيه صافي ربح.",
   },
-  questions: {
-    title: "الأسئلة الثلاثة التي يطرحها أصحاب المطاعم",
-    lead: "إجابات، لا لوحات أرقام.",
+  features: {
+    title: "من ماذا حدث إلى ماذا تفعل حياله",
+    lead: "خمس شاشات، لكل منها سؤال واحد.",
     items: [
       {
-        q: "كم تأخذ التطبيقات فعلاً؟",
-        a: "العمولة هي الخصم الأول فقط. أضف الضريبة عليها ورسوم الدفع والإعلانات والخصومات التي تحمّلتها، فيصبح الخصم الحقيقي أكبر بكثير من النسبة المكتوبة في العقد.",
-        stat: "من مبيعات التطبيق ذهبت كرسوم منصّة في الشهر التجريبي",
+        title: "نظرة عامة",
+        body: "شاشة واحدة بأرقامك الحقيقية: ما بقي لك، ونسبة الاحتفاظ لكل قناة، وما تغيّر عن الفترة السابقة.",
       },
       {
-        q: "أي طبق يخسر بهدوء؟",
-        a: "قد يُباع الطبق يومياً ولا يترك لك شيئاً بعد رسوم التطبيق والتغليف. يرتّب Retained كل صنف حسب ما يبقيه لك، لا حسب عدد مرات بيعه.",
-        stat: "بقي من أضعف الأطباق هامشاً في الشهر التجريبي",
+        title: "تفصيل على مستوى الطلب",
+        body: "اختر أي طلب وشاهد اقتصادياته كاملة — العمولة والرسوم والخصومات وتكلفة الطعام — من البيع حتى ما وصل حسابك.",
       },
       {
-        q: "أي قناة تستحق الدفع؟",
-        a: "قارن ما تبقيه لك كل قناة من كل 100 من المبيعات، جنباً إلى جنب مع الطلبات المباشرة، قبل أن تصرف المزيد على الظهور.",
-        stat: "بقي من الطلبات المباشرة مقابل التطبيقات",
+        title: "ربحية القائمة",
+        body: "ليس كل طبق رائج طبقاً جيداً. شاهد الأصناف التي تخسر بهدوء في كل صحن، وتلك التي تستحق اهتماماً أكبر.",
+      },
+      {
+        title: "مقارنة القنوات",
+        body: "أي قناة تستحق الدفع هذا الشهر؟ ليس بحجم المبيعات، بل بما يبقى لك.",
+      },
+      {
+        title: "توصية واحدة بدل مئة مؤشر",
+        body: "في كل فترة يمنحك Retained خطوة واحدة واضحة — قناة تدفعها، طبق تعيد تسعيره، أو خصم تعترض عليه.",
       },
     ],
   },
-  steps: {
-    title: "كيف يعمل",
-    lead: "ثلاث خطوات في جلسة واحدة.",
-    items: [
-      {
-        title: "أضف قائمتك وتكلفة كل طبق",
-        body: "الأسعار لكل قناة، تكلفة الطعام وتكلفة التغليف. هذا كل الإعداد المطلوب.",
-      },
-      {
-        title: "أدخل الطلبات والتسويات",
-        body: "ارفع التقارير التي تنزّلها أصلاً من التطبيقات، أو ابدأ بالبيانات التجريبية.",
-      },
-      {
-        title: "افتح أي رقم وشاهد الحساب",
-        body: "لكل رقم لوحة تُظهر بالضبط السطور التي كوّنته.",
-      },
+  audience: {
+    title: "لمن هذا",
+    lead: "أربعة أصحاب أعمال، أربعة أسئلة، بيانات واحدة.",
+    rows: [
+      { who: "صاحب فرع واحد", ask: "أي تطبيق يستحق الدفع هذا الشهر؟" },
+      { who: "مشغّل مطبخ سحابي", ask: "أي أطباقي يخسر بهدوء؟" },
+      { who: "صاحب فروع متعددة", ask: "أي فرع مزيج قنواته خاطئ؟" },
+      { who: "مدير أو محاسب", ask: "هل دفعت المنصّة فعلاً ما قالت إنها ستدفعه؟" },
     ],
+    note: "يجيب Retained عن الأسئلة الأربعة من البيانات نفسها.",
   },
-  markets: {
+  market: {
     title: "مصمّم لسوقك",
-    lead: "العملة والقنوات واللغة تتبع مكان مطبخك.",
     india: {
-      title: "الهند — زوماتو، سويغي والطلبات المباشرة",
-      body: "تنسيق الروبية، ضريبة السلع والخدمات على رسوم المنصّة كسطر مستقل، وفصل خصوماتك عن عروض المنصّة، مع واجهة بالهندية.",
+      title: "الهند",
+      body: "مبني على المحاسبة الهندية — ضريبة السلع والخدمات على العمولة تُعالَج بشكل صحيح، والضريبة المقتطعة وفق المادة 194-O تُتابَع كرصيد ضريبي مستقل لا كخسارة.",
     },
     uae: {
-      title: "الإمارات — طلبات، ديليفرو، كريم ونون",
-      body: "تنسيق الدرهم، قنوات التوصيل الخليجية، وواجهة عربية من اليمين إلى اليسار. الحساب نفسه، وتطبيقات سوقك.",
+      title: "الإمارات",
+      body: "مبني للسوق الإماراتي — بالدرهم، مع مراعاة ضريبة القيمة المضافة، وطلبات وكريم وديليفرو ونون في عرض واحد.",
     },
   },
   faq: {
@@ -378,39 +491,36 @@ const ar: SiteCopy = {
     lead: "إجابات قصيرة وصريحة.",
     items: [
       {
-        q: "كم تأخذ تطبيقات التوصيل من المطاعم؟",
-        a: "تتراوح العمولة المعلنة عادةً حول عشرين بالمئة من قيمة الطلب، لكن الخصم لا يتوقف هناك: الضريبة على العمولة، ورسوم الدفع، والإنفاق الإعلاني، والخصومات التي تتحمّلها. يستخرج Retained نسبتك الحقيقية من تقارير التسوية الخاصة بك.",
+        q: "كم تأخذ تطبيقات التوصيل فعلاً؟",
+        a: "العمولة المعلنة (15–30%) جزء فقط. بعد الضريبة على العمولة ورسوم الدفع والإنفاق الإعلاني وتمويل الخصومات، يصبح الخصم الحقيقي أعلى بنحو 8 إلى 12 نقطة مئوية. يحسب Retained نسبتك الفعلية من بيانات تسويتك أنت.",
       },
       {
-        q: "كيف تُحتسب دفعة التطبيق؟",
-        a: "ابدأ بما دفعه العميل، اطرح خصمك وأي مبالغ مستردة، ثم اطرح العمولة والضريبة عليها ورسوم الدفع وحصة الإعلانات والتسويات. الباقي هو ما يصل إلى حسابك. يعيد Retained بناء هذه السلسلة لكل طلب.",
+        q: "لماذا جاءت دفعتي أقل من المتوقع؟",
+        a: "عادةً بسبب واحد أو أكثر من: الضريبة على العمولة، وتمويل الخصومات الترويجية، ورسوم الإعلانات، وتسويات الاسترداد، أو ضريبة مقتطعة. يفصّل Retained كل خصم في كل طلب.",
       },
       {
-        q: "ما هامش الربح الجيد للمطعم؟",
-        a: "لا يوجد رقم واحد. المهم هو ما يتبقّى بعد رسوم المنصّات والخصومات وتكلفة الطعام، لأن الإيجار والرواتب والكهرباء تُدفع منه. يتتبّع Retained هذا الرقم لكل قناة.",
+        q: "هل يجب أن يدفع مطعمي ضريبة على طلبات التطبيقات؟",
+        a: "في الهند، ومنذ يناير 2022، المنصّة هي المسؤولة عن ضريبة الطلب وفق المادة 9(5)، وأنت تدفع الضريبة على رسوم العمولة فقط. في الإمارات تُطبَّق قواعد ضريبة القيمة المضافة المحلية. يطبّق Retained ذلك افتراضياً.",
       },
       {
-        q: "كيف أحسب ربح طبق واحد؟",
-        a: "اطرح تكلفة الطعام والتغليف من مبيعات الطبق، ثم وزّع عليه حصة عادلة من رسوم المنصّة والخصومات. يقوم Retained بهذا التوزيع تلقائياً لكل صنف.",
+        q: "هل يمكن للمنصّة خصم إعلانات أو خصومات بلا موافقتي؟",
+        a: "يحدث أكثر مما يظن الملاك، وغالباً لا يظهر إلا لاحقاً في كشف التسوية. وهذا بالضبط ما تعلّمه مطابقة Retained.",
       },
       {
-        q: "هل يناسب المطابخ السحابية بدون صالة؟",
-        a: "نعم. تعتمد المطابخ السحابية غالباً على طلبات التطبيقات، وهناك تتراكم الخصومات، لذا تصبح مقارنة القنوات أكثر فائدة.",
-      },
-      {
-        q: "هل يعمل في دبي وبقية الإمارات؟",
-        a: "نعم. اختر الإمارات أثناء الإعداد فتتحوّل مساحة العمل إلى الدرهم وقنوات مثل طلبات وديليفرو وكريم ونون فود، مع واجهة عربية.",
+        q: "هل هذه أداة محاسبة؟",
+        a: "لا. نُظهر لك أين ذهب مالك لتتخذ قرارات أفضل في التسعير والقنوات والقائمة. لسنا بديلاً عن محاسبك ولا نقدّم أي إقرارات.",
       },
     ],
   },
   cta: {
-    title: "اعرف ما تبقّى لك فعلاً الشهر الماضي",
-    lead: "أنشئ حساباً مجانياً، أو تصفّح المطبخ التجريبي أولاً دون حساب.",
-    primary: "أنشئ حسابك المجاني",
-    secondary: "افتح المطعم التجريبي",
+    title: "خمس عشرة دقيقة. ملف تسوية واحد. إجابة حقيقية.",
+    lead: "لم تعد بحاجة إلى التخمين. ارفع ملفاً واحداً وشاهد بالضبط ما بقي لك وما لم يبقَ.",
+    primary: "أرني ما بقي لي",
+    secondary: "استكشف ببيانات عيّنة",
+    note: "بلا التزام وبلا بطاقة. ويمكنك التجوّل أولاً ببيانات العيّنة إن أردت.",
   },
   footer:
-    "المساهمة والهامش تقديرات مبنية على بياناتك. لا يصفها Retained أبداً بصافي الربح.",
+    "المساهمة والهامش تقديرات مبنية على البيانات التي تزوّدنا بها. لا يسمّيها Retained صافي ربح أبداً.",
 };
 
 const COPY: Record<LanguageCode, SiteCopy> = { en, hi, ar };

@@ -8,39 +8,25 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { DEMO, money, pct } from "@/lib/marketing-stats";
+import { DEMO, money } from "@/lib/marketing-stats";
 import type { SiteCopy } from "@/lib/site-copy";
 
-export function OwnerQuestions({ copy }: { copy: SiteCopy }) {
-  const direct = DEMO.channels.find((row) => row.code === "direct")!;
-  const stats = [pct(DEMO.zomatoCut), pct(DEMO.weakDish.margin), pct(direct.keep)];
-
+export function Features({ copy }: { copy: SiteCopy }) {
   return (
     <section className="border-b border-border bg-surface">
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:py-20">
         <h2 className="display text-3xl font-semibold tracking-tight sm:text-4xl">
-          {copy.questions.title}
+          {copy.features.title}
         </h2>
-        <p className="mt-3 text-base text-muted-foreground">{copy.questions.lead}</p>
+        <p className="mt-3 text-base text-muted-foreground">{copy.features.lead}</p>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
-          {copy.questions.items.map((item, index) => (
-            <article
-              key={item.q}
-              className="flex flex-col rounded-2xl border border-border bg-card p-6"
-            >
+        <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {copy.features.items.map((item) => (
+            <article key={item.title} className="rounded-2xl border border-border bg-card p-6">
               <h3 className="display text-lg font-semibold leading-snug tracking-tight">
-                {item.q}
+                {item.title}
               </h3>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
-              <div className="mt-auto pt-6">
-                <div className="display text-3xl font-semibold tabular text-primary">
-                  {stats[index]}
-                </div>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  {index === 1 ? `${copy.questions.items[1]!.stat} · ${DEMO.weakDish.name}` : item.stat}
-                </p>
-              </div>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
             </article>
           ))}
         </div>
@@ -49,64 +35,48 @@ export function OwnerQuestions({ copy }: { copy: SiteCopy }) {
   );
 }
 
-export function Steps({ copy }: { copy: SiteCopy }) {
+export function Audience({ copy }: { copy: SiteCopy }) {
   return (
     <section className="border-b border-border">
-      <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:py-20">
+      <div className="mx-auto max-w-4xl px-5 py-16 sm:px-8 lg:py-20">
         <h2 className="display text-3xl font-semibold tracking-tight sm:text-4xl">
-          {copy.steps.title}
+          {copy.audience.title}
         </h2>
-        <p className="mt-3 text-base text-muted-foreground">{copy.steps.lead}</p>
+        <p className="mt-3 text-base text-muted-foreground">{copy.audience.lead}</p>
 
-        <ol className="mt-10 grid gap-6 md:grid-cols-3">
-          {copy.steps.items.map((step, index) => (
-            <li key={step.title} className="border-t-2 border-primary/30 pt-5">
-              <span className="display text-sm font-bold text-primary">0{index + 1}</span>
-              <h3 className="display mt-2 text-lg font-semibold tracking-tight">{step.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+        <ul className="mt-8 divide-y divide-border border-y border-border">
+          {copy.audience.rows.map((row) => (
+            <li
+              key={row.who}
+              className="flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:gap-8"
+            >
+              <span className="display shrink-0 text-sm font-semibold tracking-tight sm:w-56">
+                {row.who}
+              </span>
+              <span className="text-sm leading-relaxed text-muted-foreground">“{row.ask}”</span>
             </li>
           ))}
-        </ol>
+        </ul>
+
+        <p className="mt-6 text-base font-medium">{copy.audience.note}</p>
       </div>
     </section>
   );
 }
 
-export function Markets({ copy }: { copy: SiteCopy }) {
+export function MarketNote({ copy }: { copy: SiteCopy }) {
   return (
     <section className="border-b border-border bg-surface">
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:py-20">
         <h2 className="display text-3xl font-semibold tracking-tight sm:text-4xl">
-          {copy.markets.title}
+          {copy.market.title}
         </h2>
-        <p className="mt-3 text-base text-muted-foreground">{copy.markets.lead}</p>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
-          {[copy.markets.india, copy.markets.uae].map((panel, index) => (
+        <div className="mt-8 grid gap-5 md:grid-cols-2">
+          {[copy.market.india, copy.market.uae].map((panel) => (
             <article key={panel.title} className="rounded-2xl border border-border bg-card p-7">
               <h3 className="display text-xl font-semibold tracking-tight">{panel.title}</h3>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{panel.body}</p>
-              {index === 0 ? (
-                <dl className="mt-6 grid grid-cols-3 gap-3 border-t border-border pt-5">
-                  {DEMO.channels.map((row) => (
-                    <div key={row.code}>
-                      <dt className="text-xs capitalize text-muted-foreground">{row.code}</dt>
-                      <dd className="display text-lg font-semibold tabular">{pct(row.keep, 0)}</dd>
-                    </div>
-                  ))}
-                </dl>
-              ) : (
-                <ul className="mt-6 flex flex-wrap gap-2 border-t border-border pt-5">
-                  {["Talabat", "Deliveroo", "Careem", "Noon Food", "Direct"].map((label) => (
-                    <li
-                      key={label}
-                      className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
-                    >
-                      {label}
-                    </li>
-                  ))}
-                </ul>
-              )}
             </article>
           ))}
         </div>
@@ -168,7 +138,10 @@ export function ClosingCta({ copy, onDemo }: { copy: SiteCopy; onDemo: () => voi
             {copy.cta.secondary}
           </Button>
         </div>
-        <p className="mt-10 text-xs leading-relaxed text-primary-foreground/70">
+        <p className="mx-auto mt-6 max-w-lg text-sm leading-relaxed text-primary-foreground/80">
+          {copy.cta.note}
+        </p>
+        <p className="mt-8 text-xs leading-relaxed text-primary-foreground/70">
           {money(DEMO.kept)} · {DEMO.orders} orders · {DEMO.period.label}
         </p>
       </div>

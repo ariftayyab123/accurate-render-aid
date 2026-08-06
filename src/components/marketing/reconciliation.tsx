@@ -1,24 +1,57 @@
+import { AlertTriangle } from "lucide-react";
+
 import { DEMO, FLOW, money, pct } from "@/lib/marketing-stats";
 import { cn } from "@/lib/utils";
 import type { SiteCopy } from "@/lib/site-copy";
 
-export function MoneyFlow({ copy }: { copy: SiteCopy }) {
+/**
+ * The "see it work on a real example" anchor. Figures come from the same demo
+ * dataset the app itself uses; the unexplained gap is the ad spend charged in
+ * the demo month, shown as the kind of line the reconciliation flags.
+ */
+export function Reconciliation({ copy }: { copy: SiteCopy }) {
   const slices = FLOW.filter((step) => step.key !== "sales");
+  const expected = DEMO.sales - DEMO.platformCut - DEMO.discounts;
+  const flagged = DEMO.ads;
+  const paid = expected - flagged;
 
   return (
-    <section className="border-b border-border">
+    <section id="example" className="scroll-mt-20 border-b border-border">
       <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 lg:py-20">
-        <h2 className="display text-3xl font-semibold tracking-tight sm:text-4xl">
-          {copy.flow.title}
+        <h2 className="display max-w-3xl text-3xl font-semibold tracking-tight sm:text-4xl">
+          {copy.recon.title}
         </h2>
-        <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
-          {copy.flow.lead}
+        <p className="mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground">
+          {copy.recon.lead}
         </p>
 
-        <div className="mt-10 rounded-2xl border border-border bg-card p-6 sm:p-8">
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <div className="text-sm text-muted-foreground">{copy.recon.expected}</div>
+            <div className="display mt-2 text-2xl font-semibold tabular">{money(expected)}</div>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-6">
+            <div className="text-sm text-muted-foreground">{copy.recon.paid}</div>
+            <div className="display mt-2 text-2xl font-semibold tabular">{money(paid)}</div>
+          </div>
+          <div className="rounded-2xl border-2 border-primary/40 bg-primary/5 p-6">
+            <div className="flex items-center gap-2 text-sm font-medium text-primary">
+              <AlertTriangle className="size-4" />
+              {copy.recon.gap}
+            </div>
+            <div className="display mt-2 text-2xl font-semibold tabular text-primary">
+              − {money(flagged)}
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+              {copy.recon.gapNote}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-border bg-card p-6 sm:p-8">
           <div className="flex items-baseline justify-between gap-4">
             <span className="text-sm font-medium text-muted-foreground">
-              {copy.flow.labels['sales']}
+              {copy.recon.flowTitle}
             </span>
             <span className="display text-2xl font-semibold tabular">{money(DEMO.sales)}</span>
           </div>
@@ -34,7 +67,7 @@ export function MoneyFlow({ copy }: { copy: SiteCopy }) {
                   step.key === "food" && "bg-foreground/30",
                 )}
                 style={{ width: `${(step.share * 100).toFixed(2)}%` }}
-                title={copy.flow.labels[step.key]}
+                title={copy.recon.labels[step.key]}
               />
             ))}
           </div>
@@ -56,7 +89,7 @@ export function MoneyFlow({ copy }: { copy: SiteCopy }) {
                       : "text-muted-foreground",
                   )}
                 >
-                  {copy.flow.labels[step.key]}
+                  {copy.recon.labels[step.key]}
                   <span className="ms-2 text-xs text-muted-foreground">{pct(step.share)}</span>
                 </dt>
                 <dd
@@ -72,7 +105,7 @@ export function MoneyFlow({ copy }: { copy: SiteCopy }) {
             ))}
           </dl>
 
-          <p className="mt-6 text-xs leading-relaxed text-muted-foreground">{copy.flow.note}</p>
+          <p className="mt-6 text-xs leading-relaxed text-muted-foreground">{copy.recon.note}</p>
         </div>
       </div>
     </section>

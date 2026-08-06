@@ -2,16 +2,18 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
 import { SiteHeader } from "@/components/marketing/site-header";
 import { Hero } from "@/components/marketing/hero";
-import { MoneyFlow } from "@/components/marketing/money-flow";
-import { ClosingCta, Faq, Markets, OwnerQuestions, Steps } from "@/components/marketing/sections";
+import { TheGap } from "@/components/marketing/the-gap";
+import { Positioning } from "@/components/marketing/positioning";
+import { Reconciliation } from "@/components/marketing/reconciliation";
+import { Audience, ClosingCta, Faq, Features, MarketNote } from "@/components/marketing/sections";
 import { loadDemoWorkspace } from "@/lib/workspace";
 import { siteCopy } from "@/lib/site-copy";
 import { useSiteLanguage } from "@/lib/site-language";
 
 const SITE_URL = "https://accurate-render-aid.lovable.app";
-const TITLE = "Retained — what your restaurant keeps from Zomato, Swiggy and Talabat";
+const TITLE = "Retained — Know What You Actually Kept From Zomato & Swiggy";
 const DESCRIPTION =
-  "See what is left after app commission, tax on fees, payment charges, ads, discounts and food cost — per channel, per order and per dish, for restaurants in India and the UAE.";
+  "See what Zomato and Swiggy really deduct from every order — commission, ads, discounts, GST, TDS. Match your payout to the rupee. Free to try.";
 
 const faqCopy = siteCopy("en").faq;
 
@@ -71,6 +73,10 @@ function Landing() {
     navigate({ to: "/app" });
   };
 
+  const scrollToExample = () => {
+    document.getElementById("example")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div className="min-h-screen bg-background" dir={dir} lang={language}>
       <SiteHeader
@@ -82,11 +88,13 @@ function Landing() {
       />
 
       <main>
-        <Hero copy={copy} onDemo={openDemo} />
-        <MoneyFlow copy={copy} />
-        <OwnerQuestions copy={copy} />
-        <Steps copy={copy} />
-        <Markets copy={copy} />
+        <Hero copy={copy} onExample={scrollToExample} />
+        <TheGap copy={copy} />
+        <Positioning copy={copy} />
+        <Reconciliation copy={copy} />
+        <Features copy={copy} />
+        <Audience copy={copy} />
+        <MarketNote copy={copy} />
         <Faq copy={copy} />
         <ClosingCta copy={copy} onDemo={openDemo} />
       </main>
