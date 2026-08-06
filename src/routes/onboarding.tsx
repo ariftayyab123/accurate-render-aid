@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth";
 import { saveWorkspaceForUser } from "@/lib/workspace-sync";
 import { useHydrated, useWorkspace } from "@/lib/workspace";
+import { UploadZone } from "@/components/app/upload-zone";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
@@ -42,6 +43,7 @@ function Onboarding() {
   const { session, loading } = useSession();
   const [step, setStep] = useState(state.onboardingStep);
   const [saving, setSaving] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const market = marketConfig(state.market);
 
   useEffect(() => {
@@ -206,53 +208,74 @@ function Onboarding() {
           ) : null}
 
           {step === 3 ? (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Choose how this workspace starts. You can switch later.
-              </p>
-              {(
-                [
-                  {
-                    mode: "demo" as const,
-                    title: "Load the synthetic demo dataset",
-                    body: "431 orders across July 2026 with settlements and a 10-item menu. Labelled synthetic everywhere.",
-                  },
-                  {
-                    mode: "empty" as const,
-                    title: "Start empty",
-                    body: "Screens render with zero data until imports arrive in the next phase.",
-                  },
-                ]
-              ).map((option) => (
-                <button
-                  key={option.mode}
-                  type="button"
-                  onClick={() => update({ dataMode: option.mode })}
-                  className={cn(
-                    "flex w-full items-start gap-3 rounded-md border px-3 py-3 text-left transition-colors",
-                    state.dataMode === option.mode
-                      ? "border-primary bg-accent/50"
-                      : "border-border hover:bg-accent/30",
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "mt-0.5 flex size-4 items-center justify-center rounded-full border",
-                      state.dataMode === option.mode
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-input",
-                    )}
-                  >
-                    {state.dataMode === option.mode ? <Check className="size-3" /> : null}
-                  </span>
-                  <span>
-                    <span className="block text-sm font-medium">{option.title}</span>
-                    <span className="mt-0.5 block text-xs text-muted-foreground">
-                      {option.body}
-                    </span>
-                  </span>
-                </button>
-              ))}
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-medium">Upload your first settlement</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Drop a Zomato or Swiggy settlement CSV here. We'll parse it instantly to show your real payout vs the stated total.
+                </p>
+              </div>
+
+              {uploadedFile ? (
+                <div className="rounded-md border border-primary bg-primary/5 p-4 text-center">
+                  <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    <Check className="h-5 w-5" />
+                  </div>
+                  <h4 className="mt-3 font-medium text-primary">File parsed successfully!</h4>
+                  <p className="mt-1 text-sm text-muted-foreground">{uploadedFile.name}</p>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    In a full implementation, the live reconciliation summary (net payout vs. platform stated) would appear here.
+                  </p>
+                </div>
+              ) : (
+                <UploadZone
+                  title="Upload Settlement CSV"
+                  description="Supports standard Zomato & Swiggy portal exports"
+                  onFileSelect={async (file) => {
+                    setSaving(true);
+                    try {
+                      const text = await file.text();
+                      const isSwiggy = file.name.toLowerCase().includes("swiggy");
+                      
+                      let result;
+                      if (isSwiggy) {
+                        const { parseSwiggySettlement } = await import("@/lib/parsers/swiggy");
+                        result = await parseSwiggySettlement(text);
+                      } else {
+                        const { parseZomatoSettlement } = await import("@/lib/parsers/zomato");
+                        result = await parseZomatoSettlement(text);
+                      }
+                      
+                      console.log("Onboarding parsed:", result);
+                      setUploadedFile(file);
+                      update({ dataMode: "imported" });
+                    } catch (e: any) {
+                      console.error("Parse failed", e);
+                      alert(`Failed to parse file: ${e.message}`);
+                    } finally {
+                      setSaving(false);
+                    }
+                  }}
+                />
+              )}
+
+              <div className="flex items-center gap-4 py-2">
+                <div className="h-px flex-1 bg-border"></div>
+                <span className="text-xs text-muted-foreground">OR</span>
+                <div className="h-px flex-1 bg-border"></div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setUploadedFile(null);
+                  update({ dataMode: "demo" });
+                  goNext();
+                }}
+                className="w-full text-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Skip for now (use demo data)
+              </button>
             </div>
           ) : null}
         </div>

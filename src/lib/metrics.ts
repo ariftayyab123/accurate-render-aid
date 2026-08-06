@@ -11,11 +11,17 @@ export function revenueBasis(order: Order) {
   return order.grossOrderValue - order.restaurantDiscount - order.refundedValue;
 }
 
-/** Platform deduction = service fee + GST on fee + payment fee + ads + fulfilment + adjustments. */
+/** Platform deduction = service fee + GST on fee + payment fee + ads + fulfilment + adjustments + unauthorizedDeductions. */
 export function platformDeduction(order: Order) {
   const d = order.deductions;
   return (
-    d.serviceFee + d.gstOnServiceFee + d.paymentFee + d.adAllocation + d.fulfilmentCost + d.adjustment
+    d.serviceFee +
+    d.gstOnServiceFee +
+    d.paymentFee +
+    d.adAllocation +
+    d.fulfilmentCost +
+    d.adjustment +
+    (d.unauthorizedDeductions || 0)
   );
 }
 
@@ -53,7 +59,9 @@ export interface PeriodTotals {
     adAllocation: number;
     fulfilmentCost: number;
     adjustment: number;
+    unauthorizedDeductions: number;
   };
+  tdsWithheld: number;
 }
 
 export function summarise(orders: Order[]): PeriodTotals {
@@ -73,6 +81,8 @@ export function summarise(orders: Order[]): PeriodTotals {
       acc.deductionBreakdown.adAllocation += order.deductions.adAllocation;
       acc.deductionBreakdown.fulfilmentCost += order.deductions.fulfilmentCost;
       acc.deductionBreakdown.adjustment += order.deductions.adjustment;
+      acc.deductionBreakdown.unauthorizedDeductions += order.deductions.unauthorizedDeductions || 0;
+      acc.tdsWithheld += order.tdsWithheld || 0;
       return acc;
     },
     {
@@ -93,7 +103,9 @@ export function summarise(orders: Order[]): PeriodTotals {
         adAllocation: 0,
         fulfilmentCost: 0,
         adjustment: 0,
+        unauthorizedDeductions: 0,
       },
+      tdsWithheld: 0,
     } as PeriodTotals,
   );
 

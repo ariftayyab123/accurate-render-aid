@@ -55,6 +55,7 @@ export interface DeductionBreakdown {
   adAllocation: number;
   fulfilmentCost: number;
   adjustment: number;
+  unauthorizedDeductions: number;
 }
 
 export interface Order {
@@ -66,8 +67,14 @@ export interface Order {
   restaurantDiscount: number;
   refundedValue: number;
   deductions: DeductionBreakdown;
+  tdsWithheld: number;
   status: OrderStatus;
   dataQuality: DataQuality;
+}
+
+export interface SettlementOverrides {
+  adSpend?: number;
+  discountFundingSplit?: number;
 }
 
 export interface Settlement {
@@ -81,6 +88,7 @@ export interface Settlement {
   taxWithheld: number;
   netPayout: number;
   variance: number;
+  overrides?: SettlementOverrides;
 }
 
 export const CHANNEL_LABELS: Record<ChannelCode, string> = {
