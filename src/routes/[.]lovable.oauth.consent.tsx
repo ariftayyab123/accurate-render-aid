@@ -4,22 +4,7 @@ import { ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-
-type OAuthApi = {
-  getAuthorizationDetails: (id: string) => Promise<{ data: AuthorizationDetails | null; error: { message: string } | null }>;
-  approveAuthorization: (id: string) => Promise<{ data: AuthorizationDetails | null; error: { message: string } | null }>;
-  denyAuthorization: (id: string) => Promise<{ data: AuthorizationDetails | null; error: { message: string } | null }>;
-};
-
-interface AuthorizationDetails {
-  client?: { name?: string } | null;
-  redirect_url?: string;
-  redirect_to?: string;
-}
-
-function oauthApi(): OAuthApi {
-  return (supabase.auth as unknown as { oauth: OAuthApi }).oauth;
-}
+import { oauthApi } from "@/lib/oauth-consent";
 
 export const Route = createFileRoute("/.lovable/oauth/consent")({
   ssr: false,
