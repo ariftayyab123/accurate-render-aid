@@ -49,12 +49,12 @@ export async function parseSettlementCsv(
           taxWithheld: totalTaxWithheld,
           netPayout: totalNetPayout,
           variance: 0,
-          overrides
+          ...(overrides ? { overrides } : {}),
         };
 
         resolve({ orders, settlement });
       },
-      error: (error) => {
+      error: (error: unknown) => {
         reject(error);
       }
     });
