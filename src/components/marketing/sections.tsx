@@ -94,7 +94,12 @@ export function Faq({ copy }: { copy: SiteCopy }) {
         </h2>
         <p className="mt-3 text-base text-muted-foreground">{copy.faq.lead}</p>
 
-        <Accordion type="single" collapsible className="mt-8" defaultValue={copy.faq.items[0]?.q}>
+        <Accordion
+          type="single"
+          collapsible
+          className="mt-8"
+          {...(copy.faq.items[0]?.q ? { defaultValue: copy.faq.items[0].q } : {})}
+        >
           {copy.faq.items.map((item) => (
             <AccordionItem key={item.q} value={item.q}>
               <AccordionTrigger className="text-start text-base font-medium">
