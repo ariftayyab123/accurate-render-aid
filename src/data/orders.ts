@@ -175,6 +175,7 @@ function buildOrders(): Order[] {
         adAllocation,
         fulfilmentCost,
         adjustment,
+        unauthorizedDeductions: 0,
       },
       status,
       dataQuality,
