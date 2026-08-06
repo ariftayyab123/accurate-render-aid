@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { errorMessage } from "@/lib/parsers/base";
+import { errorMessage, parseSettlementFile } from "@/lib/parsers";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 
@@ -236,18 +236,8 @@ function Onboarding() {
                   onFileSelect={async (file) => {
                     setSaving(true);
                     try {
-                      const text = await file.text();
-                      const isSwiggy = file.name.toLowerCase().includes("swiggy");
-                      
-                      let result;
-                      if (isSwiggy) {
-                        const { parseSwiggySettlement } = await import("@/lib/parsers/swiggy");
-                        result = await parseSwiggySettlement(text);
-                      } else {
-                        const { parseZomatoSettlement } = await import("@/lib/parsers/zomato");
-                        result = await parseZomatoSettlement(text);
-                      }
-                      
+                      const result = await parseSettlementFile(file);
+
                       setUploadedFile(file);
                       update({
                         dataMode: "imported",
