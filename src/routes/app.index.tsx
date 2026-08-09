@@ -261,6 +261,25 @@ function Overview() {
       </section>
 
       {best && worst && best.channel !== worst.channel ? (
+        <></>
+      ) : null}
+
+      {totals.tdsWithheld > 0 ? (
+        <section className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-border px-5 py-4">
+          <div>
+            <p className="text-sm font-semibold">Withheld, not lost</p>
+            <p className="text-xs text-muted-foreground">
+              TDS 194-O held back by the apps. It is claimable against your income tax, so it never
+              reduces what you kept above.
+            </p>
+          </div>
+          <p className="display text-xl font-semibold tabular">
+            {formatCurrency(totals.tdsWithheld)}
+          </p>
+        </section>
+      ) : null}
+
+      {best && worst && best.channel !== worst.channel ? (
         <section className="mt-3 flex gap-3 rounded-xl border border-border bg-accent px-5 py-4">
           <Lightbulb className="mt-0.5 size-5 shrink-0 text-primary" />
           <p className="text-sm leading-relaxed">
