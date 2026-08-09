@@ -221,10 +221,11 @@ function Onboarding() {
             <div className="space-y-6">
               <div className="space-y-3">
                 <div>
-                  <Label>How are you registered for tax?</Label>
+                  <Label>How is this outlet's restaurant service taxed?</Label>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    This decides whether the {market.tax.label.toLowerCase()} is money you get back
-                    or money you lose for good. We use your answer, never an assumption.
+                    Answer with what your GST filing or accountant already shows — this is set by
+                    your outlet's classification, not something to choose. It decides whether the{" "}
+                    {market.tax.label.toLowerCase()} is a cost or input tax credit.
                   </p>
                 </div>
                 {market.tax.schemes.map((scheme) => (
