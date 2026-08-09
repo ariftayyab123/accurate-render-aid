@@ -260,10 +260,6 @@ function Overview() {
         />
       </section>
 
-      {best && worst && best.channel !== worst.channel ? (
-        <></>
-      ) : null}
-
       {totals.tdsWithheld > 0 ? (
         <section className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-border px-5 py-4">
           <div>
