@@ -310,10 +310,24 @@ function OrderDetail({ order }: { order: Order }) {
           </h3>
           <Row label="TDS 194-O withheld" value={formatCurrency(withheldTax(order))} />
           <p className="mt-2 text-xs text-muted-foreground">
-            Held back by the platform and claimable against your income tax. It never reduces the
-            contribution below.
+            Withheld at 0.1% of order value under Section 194-O and claimable against your income
+            tax. It never reduces the contribution below.
           </p>
         </section>
+
+        {order.flaggedCharges?.length ? (
+          <section>
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Worth checking with your accountant
+            </h3>
+            {order.flaggedCharges.map((charge) => (
+              <div key={charge.label}>
+                <Row label={charge.label} value={formatCurrency(charge.amount)} />
+                <p className="mt-1 text-xs text-muted-foreground">{charge.note}</p>
+              </div>
+            ))}
+          </section>
+        ) : null}
 
         <section>
           <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
