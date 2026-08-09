@@ -1,4 +1,5 @@
 import Papa from "papaparse";
+import { formatLegalReference, resolveTdsRule, resolveTdsTaxBase } from "@/lib/tax/rules";
 import type {
   Order,
   SettlementOverrides,
@@ -19,21 +20,27 @@ export function generateId(): string {
 const TCS_COLUMN_PATTERN = /\btcs\b|tax collected at source|section\s*52/i;
 
 const TCS_NOTE =
-  "TCS shown on your statement — this normally doesn't apply to aggregator food delivery orders, worth checking with your accountant.";
+  "TCS appears in this statement. It normally does not apply to restaurant-service supplies where the platform pays GST under Section 9(5). We've preserved the amount for review because the statement may contain another supply type or adjustment.";
 
 /**
  * TCS under Section 52 is not modelled as a field: a platform paying GST under 9(5)
  * cannot also collect TCS on the same supply. But if a column ever shows up, we name it
  * rather than calling a government tax collection "unauthorized".
  */
-export function detectFlaggedCharges(row: CsvRow): FlaggedCharge[] {
+export function detectFlaggedCharges(row: CsvRow, rowIndex?: number): FlaggedCharge[] {
   const flagged: FlaggedCharge[] = [];
   for (const [key, raw] of Object.entries(row)) {
     if (!TCS_COLUMN_PATTERN.test(key)) continue;
     if (raw === undefined || raw === null || raw === "") continue;
     const amount = Math.abs(parseFloat(raw.toString().replace(/,/g, "")));
     if (!Number.isFinite(amount) || amount === 0) continue;
-    flagged.push({ label: key.trim(), amount, note: TCS_NOTE });
+    flagged.push({
+      label: key.trim(),
+      amount,
+      note: TCS_NOTE,
+      sourceColumn: key,
+      ...(rowIndex !== undefined ? { sourceRow: rowIndex } : {}),
+    });
   }
   return flagged;
 }
@@ -68,14 +75,16 @@ export type MappedOrderInput = {
   adAllocation: number;
   adjustment: number;
   netDeductionsStated: number;
-  tdsWithheld: number;
+  /** Withholding exactly as the statement reports it, before any calculation. */
+  tdsReported: number;
+  rowIndex?: number;
   /** Whether tax on platform fees is reclaimable under the owner's declared scheme. */
   feeTaxRecoverable?: boolean;
 };
 
 /** Builds a normalised imported order from channel-specific column readings. */
 export function buildImportedOrder(input: MappedOrderInput): Order {
-  const flaggedCharges = detectFlaggedCharges(input.row);
+  const flaggedCharges = detectFlaggedCharges(input.row, input.rowIndex);
   const flaggedTotal = flaggedCharges.reduce((sum, charge) => sum + charge.amount, 0);
   const knownDeductions =
     input.serviceFee +
@@ -86,6 +95,14 @@ export function buildImportedOrder(input: MappedOrderInput): Order {
     input.membershipSubsidy +
     input.fulfilmentCost +
     input.adAllocation;
+
+  const tdsRule = resolveTdsRule(input.placedAt);
+  const taxableBase = resolveTdsTaxBase({
+    grossOrderValue: input.grossOrderValue,
+    restaurantFundedDiscount: input.restaurantDiscount,
+    separatelyIdentifiedTax: input.gstOnServiceFee,
+  });
+  const expectedAmount = Math.round(taxableBase * tdsRule.rate * 100) / 100;
 
   return {
     id: (input.row["Order ID"] ?? "").toString() || generateId(),
@@ -105,12 +122,21 @@ export function buildImportedOrder(input: MappedOrderInput): Order {
       adAllocation: input.adAllocation,
       fulfilmentCost: input.fulfilmentCost,
       adjustment: input.adjustment,
-      unauthorizedDeductions: Math.max(
+      unclassifiedAdjustments: Math.max(
         0,
         input.netDeductionsStated - knownDeductions - flaggedTotal,
       ),
     },
-    tdsWithheld: input.tdsWithheld,
+    withholding: {
+      type: "ECOMMERCE_TDS",
+      transactionDate: input.placedAt,
+      taxableBase,
+      rate: tdsRule.rate,
+      // The statement is the source of truth; our number is only for comparison.
+      reportedAmount: input.tdsReported,
+      expectedAmount,
+      legalReference: formatLegalReference(tdsRule),
+    },
     taxTreatment: {
       feeTaxAmount: input.gstOnServiceFee,
       recoverable: input.feeTaxRecoverable ?? false,
@@ -123,7 +149,8 @@ export function buildImportedOrder(input: MappedOrderInput): Order {
 
 export type RowMapper = (
   row: CsvRow,
-  overrides?: SettlementOverrides
+  overrides?: SettlementOverrides,
+  rowIndex?: number
 ) => {
   order: Order;
   feesAndGst: number;
@@ -148,8 +175,8 @@ export async function parseSettlementCsv(
         let taxWithheld = 0;
         let netPayout = 0;
 
-        for (const row of results.data) {
-          const mapped = mapRow(row, overrides);
+        results.data.forEach((row, rowIndex) => {
+          const mapped = mapRow(row, overrides, rowIndex);
           const { order } = mapped;
 
           orders.push(order);
@@ -158,10 +185,10 @@ export async function parseSettlementCsv(
           adsAndAdjustments +=
             order.deductions.adAllocation +
             order.deductions.adjustment +
-            order.deductions.unauthorizedDeductions;
-          taxWithheld += order.tdsWithheld;
+            order.deductions.unclassifiedAdjustments;
+          taxWithheld += order.withholding?.reportedAmount ?? 0;
           netPayout += mapped.netPayout;
-        }
+        });
 
         const fallbackDate = new Date().toISOString();
         resolve({

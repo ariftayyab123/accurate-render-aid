@@ -12,22 +12,54 @@ Pivot the MVP to rely on manual CSV settlement parsing rather than future APIs. 
 ## Status/Updates
 - *Execution Phase*: Completed initial CSV parsers using `papaparse`. Added UI hooks for processing real files in Onboarding and Imports pages. Updated calculation dictionary for TDS.
 
-## Tax positions (closed — source of truth)
+## India — restaurant aggregator tax model (source of truth)
 
-These three are settled. Do not re-open them in a research pass without a citation that
-supersedes the ones below.
+### GST on platform commission / fees
 
-1. **GST on commission (18%)** — cost or recoverable, **derived from the owner's declared GST
-   scheme** (5% composition-style, no ITC → permanent cost; 18% with ITC → recoverable).
-   Never assumed from a market default, never hedged in copy.
-2. **TDS Section 194-O** — **0.1% of gross order value** (cut from 1% effective 1 October 2024
-   by the Finance (No. 2) Act, 2024). A receivable, shown separately as "withheld, you'll claim
-   this back", and excluded from contribution.
-3. **TCS Section 52** — **not modelled as a schema field.** It does not apply to restaurant
-   supplies where the aggregator discharges GST under Section 9(5) (CBIC Circular 167/23/2021).
-   The unknown-column parser fallback carries a named exception: a TCS-looking column is
-   surfaced as a flagged charge with an accountant-check note, never as an "unauthorized
-   deduction" and never silently dropped.
+Store the GST amount actually shown on the platform's statement. Restaurant service taxed at
+5% without ITC → that GST is a non-recoverable cost in the profitability model. Where the
+outlet's classification legally carries ITC (restaurant service at specified premises, 18%),
+classify the same amount as potential input tax credit, not operating cost.
 
-Related: SLA / late-prep / cancellation penalties fold into the existing `adjustment` line —
-no dedicated deduction row. Swiggy Instamart settlement files are out of MVP scope.
+Do **not** model 5% vs 18% as an unrestricted "tax scheme" choice. Onboarding asks how the
+outlet's restaurant service is actually taxed, and offers "I'm not sure" (`gst_unknown`),
+which is treated as non-recoverable pending confirmation.
+
+### E-commerce income-tax withholding
+
+Effective-dated in `src/lib/tax/rules.ts` — never hard-coded into fields, labels or copy:
+
+```text
+01 Oct 2020 – 30 Sep 2024  1%     ITA 1961 §194-O
+01 Oct 2024 – 31 Mar 2026  0.1%   ITA 1961 §194-O
+01 Apr 2026 onward         0.1%   ITA 2025 §393(1), Table Sl. No. 8(v)
+```
+
+Never blindly compute `GOV × rate`. The pipeline is: parse the **reported** amount from the
+statement (source of truth), derive an **expected** amount from a statutory base
+(`resolveTdsTaxBase`: transaction-linked charges in, restaurant-funded discounts out,
+platform-funded discounts left in, separately identified GST out), then show the variance.
+
+Classification: tax withholding / tax credit. Reduces cash settlement, never operating
+contribution. Copy says "income-tax withheld … can generally be claimed as tax credit,
+subject to your tax records and return" — never "you'll get this back".
+
+### GST TCS — Section 52
+
+Not part of the standard deduction model and never shown as an empty row: an ECO paying GST
+under Section 9(5) does not collect TCS on those restaurant-service supplies (CBIC Circular
+167/23/2021). If a TCS-labelled column appears, preserve the raw value with its source column
+and row, and flag it for review — the file may contain a non-9(5) supply. Never silently
+dropped, never called "unauthorized".
+
+### Unclassified lines
+
+`unauthorizedDeductions` is now `unclassifiedAdjustments`. An unfamiliar column is not proof
+the platform had no right to deduct it; only a reconciliation rule can promote a line to a
+discrepancy.
+
+### Scope notes
+
+SLA / late-prep / cancellation penalties fold into the existing `adjustment` line — no
+dedicated deduction row. Swiggy Instamart and quick commerce are out of MVP scope and must
+not reuse restaurant-service assumptions.

@@ -1,7 +1,7 @@
 import type { Order, SettlementOverrides, Settlement } from "@/data/types";
 import { buildImportedOrder, numericReader, parseSettlementCsv, type RowMapper } from "./base";
 
-const mapRow: RowMapper = (row, overrides) => {
+const mapRow: RowMapper = (row, overrides, rowIndex) => {
   const val = numericReader(row);
 
   const serviceFee = val("service fee");
@@ -17,6 +17,7 @@ const mapRow: RowMapper = (row, overrides) => {
 
   const order: Order = buildImportedOrder({
     row,
+    ...(rowIndex !== undefined ? { rowIndex } : {}),
     channel: "zomato",
     placedAt: (row["settlement date"] ?? "").toString() || new Date().toISOString(),
     grossOrderValue: val("gross sales", "total merchant amount", "Items subtotal"),
@@ -35,7 +36,7 @@ const mapRow: RowMapper = (row, overrides) => {
     adAllocation,
     adjustment: val("credit/debit note adjustment"),
     netDeductionsStated,
-    tdsWithheld: val("TDS 194-O"),
+    tdsReported: val("TDS", "TDS 194-O", "tds deducted", "income tax withheld"),
     ...(overrides?.feeTaxRecoverable !== undefined
       ? { feeTaxRecoverable: overrides.feeTaxRecoverable }
       : {}),

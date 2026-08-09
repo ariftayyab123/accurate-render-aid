@@ -57,7 +57,7 @@ export const FLOW: FlowStep[] = [
   { key: "discounts", amount: totals.restaurantDiscounts, kind: "cost" },
   { key: "food", amount: totals.foodAndPackaging, kind: "cost" },
   { key: "kept", amount: totals.contribution, kind: "kept" },
-  { key: "tds", amount: totals.tdsWithheld, kind: "withheld" },
+  { key: "tds", amount: totals.taxWithheld, kind: "withheld" },
 ].map((step) => ({ ...step, share: step.amount / totals.grossOrderValue }) as FlowStep);
 
 export const DEMO = {
@@ -72,7 +72,7 @@ export const DEMO = {
   platformCutShare: totals.platformDeductions / totals.grossOrderValue,
   ads: matchedAds,
   unmatchedAds,
-  tds: totals.tdsWithheld,
+  tds: totals.taxWithheld,
   taxSunk: totals.taxSunk,
   discounts: totals.restaurantDiscounts,
   channels: [
