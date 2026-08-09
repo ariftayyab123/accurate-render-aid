@@ -1,7 +1,7 @@
 import type { Order, SettlementOverrides, Settlement } from "@/data/types";
 import { buildImportedOrder, numericReader, parseSettlementCsv, type RowMapper } from "./base";
 
-const mapRow: RowMapper = (row, overrides) => {
+const mapRow: RowMapper = (row, overrides, rowIndex) => {
   const val = numericReader(row);
 
   const serviceFee = val("commission");
@@ -15,6 +15,7 @@ const mapRow: RowMapper = (row, overrides) => {
 
   const order: Order = buildImportedOrder({
     row,
+    ...(rowIndex !== undefined ? { rowIndex } : {}),
     channel: "swiggy",
     placedAt: (row["order date"] ?? "").toString() || new Date().toISOString(),
     grossOrderValue: val("gross order value", "total order value"),
