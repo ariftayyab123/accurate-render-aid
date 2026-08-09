@@ -6,7 +6,7 @@ Three changes to the money model, all of them architectural rather than cosmetic
 
 New `src/lib/tax/rules.ts` holding an `ecommerceTdsRules` table keyed by effective date:
 
-- 2020-10-01 to 2024-09-30 — 0.1%... 1%, Income-tax Act 1961 s.194-O
+- 2020-10-01 to 2024-09-30 — 1%, Income-tax Act 1961 s.194-O
 - 2024-10-01 to 2026-03-31 — 0.1%, Income-tax Act 1961 s.194-O
 - 2026-04-01 onward — 0.1%, Income-tax Act 2025 s.393(1), Table Sl. 8(v)
 
