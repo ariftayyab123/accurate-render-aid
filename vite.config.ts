@@ -11,7 +11,7 @@ import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 
 const windowsNativeRootForLovableMcp = () => ({
   name: "windows-native-root-for-lovable-mcp",
-  configResolved(config) {
+  configResolved(config: { root: string }) {
     if (process.platform === "win32") {
       config.root = process.cwd();
     }
