@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 import { DEMO_OUTLETS, DEMO_RESTAURANT } from "@/data/menu";
-import type { MarketCode } from "@/data/markets";
+import type { MarketCode, TaxSchemeCode } from "@/data/markets";
 
 import type { Order, Settlement } from "@/data/types";
 
@@ -14,6 +14,10 @@ export interface WorkspaceState {
   city: string;
   market: MarketCode;
   currency: string;
+  /** Declared tax registration; drives whether tax on platform fees is recoverable. */
+  taxScheme: TaxSchemeCode;
+  /** Owner-declared share of discounts they fund (0–1). Declared, never detected. */
+  discountFundingShare: number;
   /** UI language; options depend on the market (en/hi in India, en/ar in the UAE). */
   language: "en" | "hi" | "ar";
   outletName: string;
@@ -36,6 +40,8 @@ export const DEFAULT_STATE: WorkspaceState = {
   city: "",
   market: "IN",
   currency: "INR",
+  taxScheme: "gst_5_no_itc",
+  discountFundingShare: 1,
   language: "en",
   outletName: "",
   channels: ["zomato", "swiggy", "direct"],
