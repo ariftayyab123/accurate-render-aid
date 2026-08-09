@@ -26,7 +26,10 @@ interface ChannelProfile {
   membershipRate: number;
   adRate: number;
   fulfilmentRate: number;
-  /** TDS 194-O rate applied to gross order value. */
+  /**
+   * TDS 194-O rate applied to gross order value.
+   * 0.1% since 1 October 2024 (Finance (No. 2) Act, 2024 cut it from 1%).
+   */
   tdsRate: number;
 }
 
@@ -41,7 +44,7 @@ const CHANNEL_PROFILES: Record<ChannelCode, ChannelProfile> = {
     membershipRate: 0.03,
     adRate: 0.031,
     fulfilmentRate: 0,
-    tdsRate: 0.01,
+    tdsRate: 0.001,
   },
   swiggy: {
     orders: 135,
@@ -53,7 +56,7 @@ const CHANNEL_PROFILES: Record<ChannelCode, ChannelProfile> = {
     membershipRate: 0.03,
     adRate: 0.015,
     fulfilmentRate: 0,
-    tdsRate: 0.01,
+    tdsRate: 0.001,
   },
   direct: {
     orders: 34,

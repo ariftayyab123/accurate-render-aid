@@ -74,6 +74,17 @@ export interface TaxTreatment {
   recoverable: boolean;
 }
 
+/**
+ * A charge found on a statement that we can name but deliberately do not model as
+ * a schema field — surfaced with its own explanation instead of being lumped into
+ * "charges we can't explain".
+ */
+export interface FlaggedCharge {
+  label: string;
+  amount: number;
+  note: string;
+}
+
 export interface Order {
   id: string;
   placedAt: string;
@@ -90,6 +101,8 @@ export interface Order {
    */
   tdsWithheld: number;
   taxTreatment?: TaxTreatment;
+  /** Named exceptions from the unknown-column fallback (e.g. a stray TCS column). */
+  flaggedCharges?: FlaggedCharge[];
   status: OrderStatus;
   dataQuality: DataQuality;
 }
