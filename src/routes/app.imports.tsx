@@ -41,7 +41,10 @@ function ImportsRoute() {
   const handleFileUpload = (type: "orders" | "settlements") => async (file: File) => {
     try {
       setIsUploading(true);
-      const result = await parseSettlementFile(file);
+      const result = await parseSettlementFile(file, {
+        discountFundingSplit: state.discountFundingShare,
+        feeTaxRecoverable: feeTaxRecoverable(state),
+      });
 
       const existingOrders = state.importedOrders || [];
       const existingSettlements = state.importedSettlements || [];
