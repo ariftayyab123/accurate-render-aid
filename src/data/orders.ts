@@ -17,9 +17,17 @@ interface ChannelProfile {
   orders: number;
   discountRate: number;
   commissionRate: number;
+  /** Fixed fee charged per order, in rupees. */
+  platformFee: number;
   paymentFeeRate: number;
+  /** Packaging value the platform deducts back, in rupees. */
+  packagingDeduction: number;
+  /** Share of orders carrying a restaurant-funded membership subsidy. */
+  membershipRate: number;
   adRate: number;
   fulfilmentRate: number;
+  /** TDS 194-O rate applied to gross order value. */
+  tdsRate: number;
 }
 
 const CHANNEL_PROFILES: Record<ChannelCode, ChannelProfile> = {
@@ -27,25 +35,37 @@ const CHANNEL_PROFILES: Record<ChannelCode, ChannelProfile> = {
     orders: 262,
     discountRate: 0.085,
     commissionRate: 0.22,
+    platformFee: 6,
     paymentFeeRate: 0.02,
+    packagingDeduction: 20,
+    membershipRate: 0.03,
     adRate: 0.031,
     fulfilmentRate: 0,
+    tdsRate: 0.01,
   },
   swiggy: {
     orders: 135,
     discountRate: 0.05,
     commissionRate: 0.2,
+    platformFee: 6,
     paymentFeeRate: 0.02,
+    packagingDeduction: 20,
+    membershipRate: 0.03,
     adRate: 0.015,
     fulfilmentRate: 0,
+    tdsRate: 0.01,
   },
   direct: {
     orders: 34,
     discountRate: 0.01,
     commissionRate: 0,
+    platformFee: 0,
     paymentFeeRate: 0.02,
+    packagingDeduction: 0,
+    membershipRate: 0,
     adRate: 0,
     fulfilmentRate: 0.09,
+    tdsRate: 0,
   },
 };
 
@@ -152,9 +172,16 @@ function buildOrders(): Order[] {
     const serviceFee = round(grossOrderValue * profile.commissionRate);
     const gstOnServiceFee = round(serviceFee * 0.18);
     const paymentFee = round(grossOrderValue * profile.paymentFeeRate);
+    const platformFee = profile.platformFee;
+    const packagingDeduction = profile.packagingDeduction;
+    const membershipSubsidy =
+      profile.membershipRate && random() < 0.28
+        ? round(grossOrderValue * profile.membershipRate)
+        : 0;
     const adAllocation = round(grossOrderValue * profile.adRate * (0.6 + random() * 0.8));
     const fulfilmentCost = round(grossOrderValue * profile.fulfilmentRate);
     const adjustment = status === "cancelled" ? round(grossOrderValue * 0.05) : 0;
+    const tdsWithheld = round(grossOrderValue * profile.tdsRate);
 
     const qualityRoll = random();
     const dataQuality: DataQuality =
@@ -170,14 +197,19 @@ function buildOrders(): Order[] {
       refundedValue,
       deductions: {
         serviceFee,
+        platformFee,
         gstOnServiceFee,
         paymentFee,
+        packagingDeduction,
+        membershipSubsidy,
         adAllocation,
         fulfilmentCost,
         adjustment,
         unauthorizedDeductions: 0,
       },
-      tdsWithheld: 0,
+      tdsWithheld,
+      // Demo restaurant is on the 5% GST scheme, so GST on commission is a permanent cost.
+      taxTreatment: { feeTaxAmount: gstOnServiceFee, recoverable: false },
       status,
       dataQuality,
     });
