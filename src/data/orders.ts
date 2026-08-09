@@ -1,4 +1,5 @@
 import { MENU_ITEMS } from "./menu";
+import { formatLegalReference, resolveTdsRule, resolveTdsTaxBase } from "@/lib/tax/rules";
 import type { ChannelCode, DataQuality, Order, OrderLine, OrderStatus, Settlement } from "./types";
 
 /** Deterministic PRNG so the synthetic dataset is identical on server and client. */
@@ -26,11 +27,8 @@ interface ChannelProfile {
   membershipRate: number;
   adRate: number;
   fulfilmentRate: number;
-  /**
-   * TDS 194-O rate applied to gross order value.
-   * 0.1% since 1 October 2024 (Finance (No. 2) Act, 2024 cut it from 1%).
-   */
-  tdsRate: number;
+  /** Whether the channel withholds income tax on the restaurant's behalf. */
+  withholds: boolean;
 }
 
 const CHANNEL_PROFILES: Record<ChannelCode, ChannelProfile> = {
@@ -44,7 +42,7 @@ const CHANNEL_PROFILES: Record<ChannelCode, ChannelProfile> = {
     membershipRate: 0.03,
     adRate: 0.031,
     fulfilmentRate: 0,
-    tdsRate: 0.001,
+    withholds: true,
   },
   swiggy: {
     orders: 135,
@@ -56,7 +54,7 @@ const CHANNEL_PROFILES: Record<ChannelCode, ChannelProfile> = {
     membershipRate: 0.03,
     adRate: 0.015,
     fulfilmentRate: 0,
-    tdsRate: 0.001,
+    withholds: true,
   },
   direct: {
     orders: 34,
@@ -68,7 +66,7 @@ const CHANNEL_PROFILES: Record<ChannelCode, ChannelProfile> = {
     membershipRate: 0,
     adRate: 0,
     fulfilmentRate: 0.09,
-    tdsRate: 0,
+    withholds: false,
   },
 };
 
@@ -184,7 +182,28 @@ function buildOrders(): Order[] {
     const adAllocation = round(grossOrderValue * profile.adRate * (0.6 + random() * 0.8));
     const fulfilmentCost = round(grossOrderValue * profile.fulfilmentRate);
     const adjustment = status === "cancelled" ? round(grossOrderValue * 0.05) : 0;
-    const tdsWithheld = round(grossOrderValue * profile.tdsRate);
+
+    const placedAtIso = placedAt.toISOString();
+    const tdsRule = resolveTdsRule(placedAtIso);
+    const taxableBase = resolveTdsTaxBase({
+      grossOrderValue,
+      restaurantFundedDiscount: restaurantDiscount,
+      separatelyIdentifiedTax: gstOnServiceFee,
+    });
+    const expectedWithholding = Math.round(taxableBase * tdsRule.rate * 100) / 100;
+    // A few statements disagree with the calculation, so reconciliation has something to show.
+    const variance = random() > 0.97 ? Math.round(expectedWithholding * 0.4 * 100) / 100 : 0;
+    const withholding = profile.withholds
+      ? {
+          type: "ECOMMERCE_TDS" as const,
+          transactionDate: placedAtIso,
+          taxableBase,
+          rate: tdsRule.rate,
+          reportedAmount: Math.round((expectedWithholding + variance) * 100) / 100,
+          expectedAmount: expectedWithholding,
+          legalReference: formatLegalReference(tdsRule),
+        }
+      : undefined;
 
     const qualityRoll = random();
     const dataQuality: DataQuality =
@@ -192,7 +211,7 @@ function buildOrders(): Order[] {
 
     orders.push({
       id: `ORD-${String(index + 1).padStart(5, "0")}`,
-      placedAt: placedAt.toISOString(),
+      placedAt: placedAtIso,
       channel,
       lines,
       grossOrderValue,
@@ -208,9 +227,9 @@ function buildOrders(): Order[] {
         adAllocation,
         fulfilmentCost,
         adjustment,
-        unauthorizedDeductions: 0,
+        unclassifiedAdjustments: 0,
       },
-      tdsWithheld,
+      ...(withholding ? { withholding } : {}),
       // Demo restaurant is on the 5% GST scheme, so GST on commission is a permanent cost.
       taxTreatment: { feeTaxAmount: gstOnServiceFee, recoverable: false },
       status,
