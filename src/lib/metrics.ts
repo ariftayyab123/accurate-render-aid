@@ -13,8 +13,8 @@ export function revenueBasis(order: Order) {
 
 /**
  * Platform deduction = service fee + fixed platform fee + tax on fees + payment fee
- * + packaging deduction + membership subsidy + ads + fulfilment + adjustments + unauthorized.
- * TDS 194-O is deliberately excluded: it is withheld money, not a cost.
+ * + packaging deduction + membership subsidy + ads + fulfilment + adjustments + unclassified.
+ * Income-tax withholding is deliberately excluded: it is withheld money, not a cost.
  */
 export function platformDeduction(order: Order) {
   const d = order.deductions;
@@ -28,17 +28,23 @@ export function platformDeduction(order: Order) {
     d.adAllocation +
     d.fulfilmentCost +
     d.adjustment +
-    (d.unauthorizedDeductions || 0)
+    (d.unclassifiedAdjustments || 0)
   );
 }
 
 /**
- * Money the platform held back on the restaurant's behalf — TDS under Section 194-O only.
- * TCS under Section 52 does not apply to restaurant supplies taxed by the aggregator
- * under Section 9(5) (CBIC Circular 167/23/2021), so it is not modelled anywhere.
+ * Money the platform held back toward the restaurant's income tax, as reported on the
+ * statement. GST TCS under Section 52 does not normally apply to restaurant supplies
+ * taxed by the aggregator under Section 9(5) (CBIC Circular 167/23/2021), so it is not
+ * part of this model.
  */
 export function withheldTax(order: Order) {
-  return order.tdsWithheld || 0;
+  return order.withholding?.reportedAmount ?? 0;
+}
+
+/** What our own calculation expects the withholding to be, for reconciliation only. */
+export function expectedWithheldTax(order: Order) {
+  return order.withholding?.expectedAmount ?? 0;
 }
 
 /**
