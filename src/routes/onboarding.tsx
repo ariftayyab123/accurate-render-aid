@@ -301,7 +301,12 @@ function Onboarding() {
                   onFileSelect={async (file) => {
                     setSaving(true);
                     try {
-                      const result = await parseSettlementFile(file);
+                      const result = await parseSettlementFile(file, {
+                        discountFundingSplit: state.discountFundingShare,
+                        feeTaxRecoverable: marketConfig(state.market).tax.schemes.some(
+                          (scheme) => scheme.code === state.taxScheme && scheme.recoverable,
+                        ),
+                      });
 
                       setUploadedFile(file);
                       update({

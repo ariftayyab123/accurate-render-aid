@@ -34,6 +34,7 @@ import {
   orderContribution,
   platformDeduction,
   revenueBasis,
+  withheldTax,
 } from "@/lib/metrics";
 import { cn } from "@/lib/utils";
 import { analysisChannels, useDataset, useWorkspace } from "@/lib/workspace";
@@ -284,12 +285,34 @@ function OrderDetail({ order }: { order: Order }) {
             Platform deductions
           </h3>
           <Row label="Service fee / commission" value={formatCurrency(d.serviceFee)} />
+          <Row label="Fixed platform fee" value={formatCurrency(d.platformFee || 0)} />
           <Row label="GST on platform services" value={formatCurrency(d.gstOnServiceFee)} />
           <Row label="Payment mechanism fee" value={formatCurrency(d.paymentFee)} />
+          <Row label="Packaging deducted back" value={formatCurrency(d.packagingDeduction || 0)} />
+          <Row
+            label="Membership discount you funded"
+            value={formatCurrency(d.membershipSubsidy || 0)}
+          />
           <Row label="Ad allocation" value={formatCurrency(d.adAllocation)} />
           <Row label="Own delivery / fulfilment" value={formatCurrency(d.fulfilmentCost)} />
           <Row label="Cancellation or SLA adjustment" value={formatCurrency(d.adjustment)} />
           <Row label="Total deductions" value={formatCurrency(deductions)} emphasis />
+          <p className="mt-2 text-xs text-muted-foreground">
+            {order.taxTreatment?.recoverable
+              ? "Tax on these fees is recoverable, so it is credit rather than a permanent cost."
+              : "Tax on these fees is a permanent cost under your declared scheme — you cannot claim it back."}
+          </p>
+        </section>
+
+        <section>
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Withheld, not lost
+          </h3>
+          <Row label="TDS 194-O withheld" value={formatCurrency(withheldTax(order))} />
+          <p className="mt-2 text-xs text-muted-foreground">
+            Held back by the platform and claimable against your income tax. It never reduces the
+            contribution below.
+          </p>
         </section>
 
         <section>
