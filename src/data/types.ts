@@ -61,7 +61,26 @@ export interface DeductionBreakdown {
   adAllocation: number;
   fulfilmentCost: number;
   adjustment: number;
-  unauthorizedDeductions: number;
+  /**
+   * Statement lines we could not classify. Deliberately not called "unauthorized":
+   * an unfamiliar column is not proof the platform had no right to deduct it.
+   */
+  unclassifiedAdjustments: number;
+}
+
+/**
+ * Money withheld toward income tax. Reported is what the platform's statement says
+ * and is the source of truth for cash; expected is our own calculation, used only
+ * for reconciliation. The legal reference is resolved from the transaction date.
+ */
+export interface TaxWithholding {
+  type: "ECOMMERCE_TDS";
+  transactionDate: string;
+  taxableBase: number;
+  rate: number;
+  reportedAmount: number;
+  expectedAmount: number;
+  legalReference: string;
 }
 
 /**
@@ -83,6 +102,9 @@ export interface FlaggedCharge {
   label: string;
   amount: number;
   note: string;
+  /** Audit trail: where in the uploaded statement this value came from. */
+  sourceColumn?: string;
+  sourceRow?: number;
 }
 
 export interface Order {
@@ -95,11 +117,13 @@ export interface Order {
   refundedValue: number;
   deductions: DeductionBreakdown;
   /**
-   * TDS under Section 194-O: money withheld by the platform and claimable
-   * against income tax. A receivable, never a cost — kept out of contribution.
-   * TCS under Section 52 does not apply to 9(5) restaurant supplies and is not modelled.
+   * E-commerce income-tax withholding: reduces the cash settlement, never the
+   * operating contribution. Treated as a tax credit, not a guaranteed refund.
+   * GST TCS under Section 52 is not part of this model — it does not normally apply
+   * to 9(5) restaurant supplies — but a TCS line found in a file is preserved
+   * as a flagged charge for review.
    */
-  tdsWithheld: number;
+  withholding?: TaxWithholding;
   taxTreatment?: TaxTreatment;
   /** Named exceptions from the unknown-column fallback (e.g. a stray TCS column). */
   flaggedCharges?: FlaggedCharge[];
