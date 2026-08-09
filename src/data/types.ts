@@ -96,7 +96,10 @@ export interface Order {
 
 export interface SettlementOverrides {
   adSpend?: number;
+  /** Owner-declared share of discounts they funded (0–1). Declared, never detected. */
   discountFundingSplit?: number;
+  /** Whether tax on platform fees is reclaimable under the declared scheme. */
+  feeTaxRecoverable?: boolean;
 }
 
 export interface Settlement {
