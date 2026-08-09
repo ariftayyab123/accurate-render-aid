@@ -1,9 +1,14 @@
 export type MarketCode = "IN" | "AE";
 
-/** Tax registration the owner declares in onboarding; drives ITC/VAT recoverability. */
+/**
+ * The outlet's actual tax classification, as it appears on their filings — not a
+ * plan the owner can pick for economic advantage. In India the 5% vs 18% split
+ * follows the "specified premises" rules, so we ask what applies, never offer a switch.
+ */
 export type TaxSchemeCode =
   | "gst_5_no_itc"
   | "gst_18_with_itc"
+  | "gst_unknown"
   | "vat_registered"
   | "vat_unregistered";
 
@@ -13,6 +18,8 @@ export interface TaxScheme {
   hint: string;
   /** Whether tax charged on platform fees can be reclaimed. */
   recoverable: boolean;
+  /** Set when we treated tax as non-recoverable because the owner wasn't sure. */
+  needsConfirmation?: boolean;
 }
 
 export interface MarketTax {
@@ -55,15 +62,22 @@ export const MARKETS: MarketConfig[] = [
       schemes: [
         {
           code: "gst_5_no_itc",
-          label: "5% GST, no input tax credit",
-          hint: "GST charged on app commission stays a permanent cost.",
+          label: "5%, without input tax credit",
+          hint: "Most ordinary restaurant-service outlets. GST on app commission stays a permanent cost.",
           recoverable: false,
         },
         {
           code: "gst_18_with_itc",
-          label: "18% GST with input tax credit",
-          hint: "GST on app commission can be claimed back as credit.",
+          label: "18%, restaurant service at specified premises",
+          hint: "GST on app commission is classified as input tax credit, not a cost.",
           recoverable: true,
+        },
+        {
+          code: "gst_unknown",
+          label: "I'm not sure",
+          hint: "We'll treat GST on fees as a cost for now — the safer assumption — and you can change this once your accountant confirms.",
+          recoverable: false,
+          needsConfirmation: true,
         },
       ],
     },
