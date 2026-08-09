@@ -32,7 +32,7 @@ const mapRow: RowMapper = (row, overrides) => {
       val("adjustments") +
       val("sla penalty", "penalty", "late prep penalty", "cancellation penalty"),
     netDeductionsStated: val("total deductions", "deductions"),
-    tdsWithheld: val("TDS", "tds deducted"),
+    tdsReported: val("TDS", "tds deducted", "tds 194-o", "income tax withheld"),
     ...(overrides?.feeTaxRecoverable !== undefined
       ? { feeTaxRecoverable: overrides.feeTaxRecoverable }
       : {}),
