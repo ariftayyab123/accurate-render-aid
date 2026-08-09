@@ -107,9 +107,12 @@ export interface PeriodTotals {
     adAllocation: number;
     fulfilmentCost: number;
     adjustment: number;
-    unauthorizedDeductions: number;
+    unclassifiedAdjustments: number;
   };
-  tdsWithheld: number;
+  /** Income tax withheld, as reported on the statements. */
+  taxWithheld: number;
+  /** What our calculation expects the withholding to be. */
+  taxWithheldExpected: number;
   /** Tax on fees the business can reclaim. */
   taxRecoverable: number;
   /** Tax on fees that stays a permanent cost. */
@@ -140,8 +143,9 @@ export function summarise(orders: Order[], feeTaxRecoverable = false): PeriodTot
       acc.deductionBreakdown.adAllocation += order.deductions.adAllocation;
       acc.deductionBreakdown.fulfilmentCost += order.deductions.fulfilmentCost;
       acc.deductionBreakdown.adjustment += order.deductions.adjustment;
-      acc.deductionBreakdown.unauthorizedDeductions += order.deductions.unauthorizedDeductions || 0;
-      acc.tdsWithheld += withheldTax(order);
+      acc.deductionBreakdown.unclassifiedAdjustments += order.deductions.unclassifiedAdjustments || 0;
+      acc.taxWithheld += withheldTax(order);
+      acc.taxWithheldExpected += expectedWithheldTax(order);
       const feeTax = order.taxTreatment?.feeTaxAmount ?? order.deductions.gstOnServiceFee;
       const recoverable = order.taxTreatment?.recoverable ?? feeTaxRecoverable;
       if (recoverable) acc.taxRecoverable += feeTax;
@@ -169,9 +173,10 @@ export function summarise(orders: Order[], feeTaxRecoverable = false): PeriodTot
         adAllocation: 0,
         fulfilmentCost: 0,
         adjustment: 0,
-        unauthorizedDeductions: 0,
+        unclassifiedAdjustments: 0,
       },
-      tdsWithheld: 0,
+      taxWithheld: 0,
+      taxWithheldExpected: 0,
       taxRecoverable: 0,
       taxSunk: 0,
     } as PeriodTotals,
