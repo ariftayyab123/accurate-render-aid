@@ -306,13 +306,32 @@ function OrderDetail({ order }: { order: Order }) {
 
         <section>
           <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Withheld, not lost
+            Income-tax withheld
           </h3>
-          <Row label="TDS 194-O withheld" value={formatCurrency(withheldTax(order))} />
+          <Row label="Statement says" value={formatCurrency(withheldTax(order))} />
+          <Row label="Our calculation" value={formatCurrency(expectedWithheldTax(order))} />
+          <Row
+            label="Difference"
+            value={formatCurrency(withheldTax(order) - expectedWithheldTax(order))}
+            emphasis
+          />
           <p className="mt-2 text-xs text-muted-foreground">
-            Withheld at 0.1% of order value under Section 194-O and claimable against your income
-            tax. It never reduces the contribution below.
+            {Math.abs(withheldTax(order) - expectedWithheldTax(order)) < 0.5
+              ? "Matched — the statement agrees with our calculation."
+              : "Review — the reported withholding differs from what we expect on this order."}
           </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            This is not a platform cost. The platform has withheld it toward your income tax, so it
+            reduces the cash you are paid but not the contribution below. It can generally be
+            claimed as tax credit, subject to your tax records and return.
+          </p>
+          {order.withholding ? (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Rate {(order.withholding.rate * 100).toFixed(2)}% on{" "}
+              {formatCurrency(order.withholding.taxableBase)} · Legal basis:{" "}
+              {order.withholding.legalReference}
+            </p>
+          ) : null}
         </section>
 
         {order.flaggedCharges?.length ? (
