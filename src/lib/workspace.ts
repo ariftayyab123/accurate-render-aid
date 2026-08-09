@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ANALYSIS_PERIOD, DEMO_ORDERS } from "@/data/orders";
+import { isFeeTaxRecoverable } from "@/data/markets";
 import type { ChannelCode, Order } from "@/data/types";
 import { selectChannels, selectHydrated, selectWorkspace, store, useAppSelector } from "@/store";
 import {
@@ -135,4 +136,9 @@ const ANALYSIS_CHANNELS: ChannelCode[] = ["zomato", "swiggy", "direct"];
 /** Selected channels the analysis dataset can currently report on. */
 export function analysisChannels(state: WorkspaceState): ChannelCode[] {
   return ANALYSIS_CHANNELS.filter((code) => state.channels.includes(code));
+}
+
+/** Whether tax charged on platform fees can be reclaimed, per the declared scheme. */
+export function feeTaxRecoverable(state: WorkspaceState): boolean {
+  return isFeeTaxRecoverable(state.taxScheme);
 }

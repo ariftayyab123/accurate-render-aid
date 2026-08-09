@@ -20,7 +20,15 @@ import {
 import { currencySymbol, formatCurrency, formatPercent } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { dataConfidence, summarise, summariseByChannel, summariseByItem } from "@/lib/metrics";
-import { analysisChannels, rangeDays, rangeLabel, useDataset, useWorkspace } from "@/lib/workspace";
+import {
+  analysisChannels,
+  feeTaxRecoverable,
+  rangeDays,
+  rangeLabel,
+  useDataset,
+  useWorkspace,
+} from "@/lib/workspace";
+import { marketConfig } from "@/data/markets";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({
@@ -45,8 +53,10 @@ function Overview() {
   const { state } = useWorkspace();
   const orders = useDataset();
   const { t, channelLabel } = useI18n();
-  const totals = summarise(orders);
-  const channels = summariseByChannel(orders, analysisChannels(state)).filter(
+  const recoverable = feeTaxRecoverable(state);
+  const market = marketConfig(state.market);
+  const totals = summarise(orders, recoverable);
+  const channels = summariseByChannel(orders, analysisChannels(state), recoverable).filter(
     (row) => row.orders > 0,
   );
   const items = summariseByItem(orders).filter((row) => row.unitsSold > 0);
@@ -184,19 +194,33 @@ function Overview() {
           value={formatCurrency(totals.platformDeductions)}
           caption={t("overview.appsTookCaption", { pct: formatPercent(totals.platformDeductions / totals.revenueBasis) })}
           tone="negative"
-          formula="Service fee + GST on platform services + payment fee + ad allocation + fulfilment + adjustments"
+          formula="Service fee + fixed platform fee + tax on fees + payment fee + packaging + membership subsidy + ads + fulfilment + adjustments"
           rows={[
             {
               label: "Service fee / commission",
               value: formatCurrency(totals.deductionBreakdown.serviceFee),
             },
             {
-              label: "GST on platform services",
+              label: "Fixed platform fee",
+              value: formatCurrency(totals.deductionBreakdown.platformFee),
+            },
+            {
+              label: recoverable
+                ? `${market.tax.label} (recoverable)`
+                : `${market.tax.label} (permanent cost)`,
               value: formatCurrency(totals.deductionBreakdown.gstOnServiceFee),
             },
             {
               label: "Payment mechanism fee",
               value: formatCurrency(totals.deductionBreakdown.paymentFee),
+            },
+            {
+              label: "Packaging deducted back",
+              value: formatCurrency(totals.deductionBreakdown.packagingDeduction),
+            },
+            {
+              label: "Membership discount you funded",
+              value: formatCurrency(totals.deductionBreakdown.membershipSubsidy),
             },
             { label: "Ad allocation", value: formatCurrency(totals.deductionBreakdown.adAllocation) },
             {
@@ -213,7 +237,11 @@ function Overview() {
               emphasis: true,
             },
           ]}
-          note="TDS and TCS are tracked in the settlement view and never reduce contribution here."
+          note={
+            recoverable
+              ? `${market.tax.label} here is recoverable under your declared registration, so it comes back to you as credit.`
+              : `${market.tax.label} here is a permanent cost under your declared registration — it cannot be claimed back.`
+          }
         />
         <KpiCard
           label={t("overview.foodCost")}
@@ -231,6 +259,21 @@ function Overview() {
           note="Costs come from the menu master, so they are estimates rather than measured consumption."
         />
       </section>
+
+      {totals.tdsWithheld > 0 ? (
+        <section className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-border px-5 py-4">
+          <div>
+            <p className="text-sm font-semibold">Withheld, not lost</p>
+            <p className="text-xs text-muted-foreground">
+              TDS 194-O held back by the apps. It is claimable against your income tax, so it never
+              reduces what you kept above.
+            </p>
+          </div>
+          <p className="display text-xl font-semibold tabular">
+            {formatCurrency(totals.tdsWithheld)}
+          </p>
+        </section>
+      ) : null}
 
       {best && worst && best.channel !== worst.channel ? (
         <section className="mt-3 flex gap-3 rounded-xl border border-border bg-accent px-5 py-4">

@@ -31,7 +31,8 @@ export interface FlowStep {
   key: string;
   amount: number;
   share: number;
-  kind: "sales" | "cost" | "kept";
+  /** "withheld" is money held back and claimable later — never counted as a cost. */
+  kind: "sales" | "cost" | "kept" | "withheld";
 }
 
 /**
@@ -46,14 +47,17 @@ const matchedAds = totalAds - unmatchedAds;
 export const FLOW: FlowStep[] = [
   { key: "sales", amount: totals.grossOrderValue, kind: "sales" },
   { key: "commission", amount: totals.deductionBreakdown.serviceFee, kind: "cost" },
+  { key: "platformFee", amount: totals.deductionBreakdown.platformFee, kind: "cost" },
   { key: "taxOnFees", amount: totals.deductionBreakdown.gstOnServiceFee, kind: "cost" },
   { key: "payment", amount: totals.deductionBreakdown.paymentFee, kind: "cost" },
+  { key: "packaging", amount: totals.deductionBreakdown.packagingDeduction, kind: "cost" },
+  { key: "membership", amount: totals.deductionBreakdown.membershipSubsidy, kind: "cost" },
   { key: "ads", amount: matchedAds, kind: "cost" },
   { key: "unmatchedAds", amount: unmatchedAds, kind: "cost" },
   { key: "discounts", amount: totals.restaurantDiscounts, kind: "cost" },
   { key: "food", amount: totals.foodAndPackaging, kind: "cost" },
-  { key: "tds", amount: totals.tdsWithheld, kind: "cost" },
   { key: "kept", amount: totals.contribution, kind: "kept" },
+  { key: "tds", amount: totals.tdsWithheld, kind: "withheld" },
 ].map((step) => ({ ...step, share: step.amount / totals.grossOrderValue }) as FlowStep);
 
 export const DEMO = {
@@ -69,6 +73,7 @@ export const DEMO = {
   ads: matchedAds,
   unmatchedAds,
   tds: totals.tdsWithheld,
+  taxSunk: totals.taxSunk,
   discounts: totals.restaurantDiscounts,
   channels: [
     { code: "zomato", orders: zomato.orders, sales: zomato.grossOrderValue, keep: zomato.margin },

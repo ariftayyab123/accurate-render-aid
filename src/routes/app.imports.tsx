@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 import { UploadZone } from "@/components/app/upload-zone";
 import { Button } from "@/components/ui/button";
-import { useWorkspace } from "@/lib/workspace";
+import { feeTaxRecoverable, useWorkspace } from "@/lib/workspace";
 import { errorMessage, parseSettlementFile } from "@/lib/parsers";
 
 export const Route = createFileRoute("/app/imports")({
@@ -41,7 +41,10 @@ function ImportsRoute() {
   const handleFileUpload = (type: "orders" | "settlements") => async (file: File) => {
     try {
       setIsUploading(true);
-      const result = await parseSettlementFile(file);
+      const result = await parseSettlementFile(file, {
+        discountFundingSplit: state.discountFundingShare,
+        feeTaxRecoverable: feeTaxRecoverable(state),
+      });
 
       const existingOrders = state.importedOrders || [];
       const existingSettlements = state.importedSettlements || [];

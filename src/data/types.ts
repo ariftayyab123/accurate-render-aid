@@ -50,12 +50,28 @@ export interface OrderLine {
 
 export interface DeductionBreakdown {
   serviceFee: number;
+  /** Fixed platform fee charged per order, independent of order value. */
+  platformFee: number;
   gstOnServiceFee: number;
   paymentFee: number;
+  /** Packaging charge the platform deducts back from the restaurant. */
+  packagingDeduction: number;
+  /** Restaurant-funded share of a membership programme (Gold / One) discount. */
+  membershipSubsidy: number;
   adAllocation: number;
   fulfilmentCost: number;
   adjustment: number;
   unauthorizedDeductions: number;
+}
+
+/**
+ * Tax charged on platform fees, plus whether the business can reclaim it.
+ * Recoverability is derived from the owner's declared registration
+ * (India: 5% no-ITC vs 18% with-ITC; UAE: VAT registered or not), never assumed.
+ */
+export interface TaxTreatment {
+  feeTaxAmount: number;
+  recoverable: boolean;
 }
 
 export interface Order {
@@ -67,14 +83,23 @@ export interface Order {
   restaurantDiscount: number;
   refundedValue: number;
   deductions: DeductionBreakdown;
+  /**
+   * TDS under Section 194-O: money withheld by the platform and claimable
+   * against income tax. A receivable, never a cost — kept out of contribution.
+   * TCS under Section 52 does not apply to 9(5) restaurant supplies and is not modelled.
+   */
   tdsWithheld: number;
+  taxTreatment?: TaxTreatment;
   status: OrderStatus;
   dataQuality: DataQuality;
 }
 
 export interface SettlementOverrides {
   adSpend?: number;
+  /** Owner-declared share of discounts they funded (0–1). Declared, never detected. */
   discountFundingSplit?: number;
+  /** Whether tax on platform fees is reclaimable under the declared scheme. */
+  feeTaxRecoverable?: boolean;
 }
 
 export interface Settlement {

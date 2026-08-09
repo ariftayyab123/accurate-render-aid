@@ -31,21 +31,29 @@ export type MappedOrderInput = {
   restaurantDiscount: number;
   refundedValue: number;
   serviceFee: number;
+  platformFee: number;
   gstOnServiceFee: number;
   paymentFee: number;
+  packagingDeduction: number;
+  membershipSubsidy: number;
   fulfilmentCost: number;
   adAllocation: number;
   adjustment: number;
   netDeductionsStated: number;
   tdsWithheld: number;
+  /** Whether tax on platform fees is reclaimable under the owner's declared scheme. */
+  feeTaxRecoverable?: boolean;
 };
 
 /** Builds a normalised imported order from channel-specific column readings. */
 export function buildImportedOrder(input: MappedOrderInput): Order {
   const knownDeductions =
     input.serviceFee +
+    input.platformFee +
     input.gstOnServiceFee +
     input.paymentFee +
+    input.packagingDeduction +
+    input.membershipSubsidy +
     input.fulfilmentCost +
     input.adAllocation;
 
@@ -59,14 +67,21 @@ export function buildImportedOrder(input: MappedOrderInput): Order {
     refundedValue: input.refundedValue,
     deductions: {
       serviceFee: input.serviceFee,
+      platformFee: input.platformFee,
       gstOnServiceFee: input.gstOnServiceFee,
       paymentFee: input.paymentFee,
+      packagingDeduction: input.packagingDeduction,
+      membershipSubsidy: input.membershipSubsidy,
       adAllocation: input.adAllocation,
       fulfilmentCost: input.fulfilmentCost,
       adjustment: input.adjustment,
       unauthorizedDeductions: Math.max(0, input.netDeductionsStated - knownDeductions),
     },
     tdsWithheld: input.tdsWithheld,
+    taxTreatment: {
+      feeTaxAmount: input.gstOnServiceFee,
+      recoverable: input.feeTaxRecoverable ?? false,
+    },
     status: "delivered",
     dataQuality: "imported",
   };

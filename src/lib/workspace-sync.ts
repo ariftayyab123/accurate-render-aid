@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
-import type { MarketCode } from "@/data/markets";
+import type { MarketCode, TaxSchemeCode } from "@/data/markets";
 import { DEFAULT_STATE, updateWorkspace, type WorkspaceState } from "@/lib/workspace";
 
 /** Pulls the signed-in owner's saved workspace into the local store. */
@@ -9,7 +9,7 @@ export async function loadWorkspaceForUser(userId: string, email: string) {
   const { data, error } = await supabase
     .from("workspaces")
     .select(
-      "restaurant_name, city, market, currency, outlet_name, channels, data_mode, onboarding_step, onboarding_complete",
+      "restaurant_name, city, market, currency, outlet_name, channels, data_mode, onboarding_step, onboarding_complete, tax_scheme, discount_funding_share",
     )
     .eq("owner_id", userId)
     .maybeSingle();
@@ -31,6 +31,11 @@ export async function loadWorkspaceForUser(userId: string, email: string) {
     outletName: data.outlet_name,
     channels: data.channels ?? [],
     dataMode: data.data_mode === "empty" ? "empty" : "demo",
+    taxScheme: (data.tax_scheme as TaxSchemeCode | null) ?? DEFAULT_STATE.taxScheme,
+    discountFundingShare:
+      data.discount_funding_share === null || data.discount_funding_share === undefined
+        ? DEFAULT_STATE.discountFundingShare
+        : Number(data.discount_funding_share),
     onboardingStep: data.onboarding_step,
     onboardingComplete: data.onboarding_complete,
   });
@@ -49,6 +54,8 @@ export async function saveWorkspaceForUser(userId: string, state: WorkspaceState
       outlet_name: state.outletName,
       channels: state.channels,
       data_mode: state.dataMode,
+      tax_scheme: state.taxScheme,
+      discount_funding_share: state.discountFundingShare,
       onboarding_step: state.onboardingStep,
       onboarding_complete: state.onboardingComplete,
     },

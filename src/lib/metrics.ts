@@ -11,18 +11,57 @@ export function revenueBasis(order: Order) {
   return order.grossOrderValue - order.restaurantDiscount - order.refundedValue;
 }
 
-/** Platform deduction = service fee + GST on fee + payment fee + ads + fulfilment + adjustments + unauthorizedDeductions. */
+/**
+ * Platform deduction = service fee + fixed platform fee + tax on fees + payment fee
+ * + packaging deduction + membership subsidy + ads + fulfilment + adjustments + unauthorized.
+ * TDS 194-O is deliberately excluded: it is withheld money, not a cost.
+ */
 export function platformDeduction(order: Order) {
   const d = order.deductions;
   return (
     d.serviceFee +
+    (d.platformFee || 0) +
     d.gstOnServiceFee +
     d.paymentFee +
+    (d.packagingDeduction || 0) +
+    (d.membershipSubsidy || 0) +
     d.adAllocation +
     d.fulfilmentCost +
     d.adjustment +
     (d.unauthorizedDeductions || 0)
   );
+}
+
+/**
+ * Money the platform held back on the restaurant's behalf — TDS under Section 194-O only.
+ * TCS under Section 52 does not apply to restaurant supplies taxed by the aggregator
+ * under Section 9(5) (CBIC Circular 167/23/2021), so it is not modelled anywhere.
+ */
+export function withheldTax(order: Order) {
+  return order.tdsWithheld || 0;
+}
+
+/**
+ * Spread a lump-sum channel ad figure across that channel's orders, pro-rata by gross
+ * order value. Orders that already carry their own ad deduction keep it.
+ */
+export function allocateAdSpend(orders: Order[], channelAdSpend: Partial<Record<ChannelCode, number>>) {
+  const totals = new Map<ChannelCode, number>();
+  orders.forEach((order) => {
+    if (order.deductions.adAllocation) return;
+    totals.set(order.channel, (totals.get(order.channel) ?? 0) + order.grossOrderValue);
+  });
+
+  return orders.map((order) => {
+    const lump = channelAdSpend[order.channel];
+    const basis = totals.get(order.channel) ?? 0;
+    if (!lump || !basis || order.deductions.adAllocation) return order;
+    const share = order.grossOrderValue / basis;
+    return {
+      ...order,
+      deductions: { ...order.deductions, adAllocation: Math.round(lump * share) },
+    };
+  });
 }
 
 export function foodAndPackagingCost(order: Order) {
@@ -54,17 +93,28 @@ export interface PeriodTotals {
   averageOrderValue: number;
   deductionBreakdown: {
     serviceFee: number;
+    platformFee: number;
     gstOnServiceFee: number;
     paymentFee: number;
+    packagingDeduction: number;
+    membershipSubsidy: number;
     adAllocation: number;
     fulfilmentCost: number;
     adjustment: number;
     unauthorizedDeductions: number;
   };
   tdsWithheld: number;
+  /** Tax on fees the business can reclaim. */
+  taxRecoverable: number;
+  /** Tax on fees that stays a permanent cost. */
+  taxSunk: number;
 }
 
-export function summarise(orders: Order[]): PeriodTotals {
+/**
+ * @param feeTaxRecoverable Declared registration outcome — whether tax on platform
+ * fees can be reclaimed. Per-order `taxTreatment` overrides it when present.
+ */
+export function summarise(orders: Order[], feeTaxRecoverable = false): PeriodTotals {
   const totals = orders.reduce(
     (acc, order) => {
       acc.orders += 1;
@@ -76,13 +126,20 @@ export function summarise(orders: Order[]): PeriodTotals {
       acc.foodAndPackaging += foodAndPackagingCost(order);
       acc.contribution += orderContribution(order);
       acc.deductionBreakdown.serviceFee += order.deductions.serviceFee;
+      acc.deductionBreakdown.platformFee += order.deductions.platformFee || 0;
       acc.deductionBreakdown.gstOnServiceFee += order.deductions.gstOnServiceFee;
       acc.deductionBreakdown.paymentFee += order.deductions.paymentFee;
+      acc.deductionBreakdown.packagingDeduction += order.deductions.packagingDeduction || 0;
+      acc.deductionBreakdown.membershipSubsidy += order.deductions.membershipSubsidy || 0;
       acc.deductionBreakdown.adAllocation += order.deductions.adAllocation;
       acc.deductionBreakdown.fulfilmentCost += order.deductions.fulfilmentCost;
       acc.deductionBreakdown.adjustment += order.deductions.adjustment;
       acc.deductionBreakdown.unauthorizedDeductions += order.deductions.unauthorizedDeductions || 0;
-      acc.tdsWithheld += order.tdsWithheld || 0;
+      acc.tdsWithheld += withheldTax(order);
+      const feeTax = order.taxTreatment?.feeTaxAmount ?? order.deductions.gstOnServiceFee;
+      const recoverable = order.taxTreatment?.recoverable ?? feeTaxRecoverable;
+      if (recoverable) acc.taxRecoverable += feeTax;
+      else acc.taxSunk += feeTax;
       return acc;
     },
     {
@@ -98,14 +155,19 @@ export function summarise(orders: Order[]): PeriodTotals {
       averageOrderValue: 0,
       deductionBreakdown: {
         serviceFee: 0,
+        platformFee: 0,
         gstOnServiceFee: 0,
         paymentFee: 0,
+        packagingDeduction: 0,
+        membershipSubsidy: 0,
         adAllocation: 0,
         fulfilmentCost: 0,
         adjustment: 0,
         unauthorizedDeductions: 0,
       },
       tdsWithheld: 0,
+      taxRecoverable: 0,
+      taxSunk: 0,
     } as PeriodTotals,
   );
 
@@ -119,13 +181,17 @@ export interface ChannelSummary extends PeriodTotals {
   settlementVariance: number;
 }
 
-export function summariseByChannel(orders: Order[], channels: ChannelCode[]): ChannelSummary[] {
+export function summariseByChannel(
+  orders: Order[],
+  channels: ChannelCode[],
+  feeTaxRecoverable = false,
+): ChannelSummary[] {
   return channels.map((channel) => {
     const channelOrders = orders.filter((order) => order.channel === channel);
     const settlementVariance = DEMO_SETTLEMENTS.filter(
       (settlement) => settlement.channel === channel,
     ).reduce((sum, settlement) => sum + settlement.variance, 0);
-    return { channel, settlementVariance, ...summarise(channelOrders) };
+    return { channel, settlementVariance, ...summarise(channelOrders, feeTaxRecoverable) };
   });
 }
 

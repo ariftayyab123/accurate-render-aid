@@ -10,7 +10,8 @@ import type { SiteCopy } from "@/lib/site-copy";
  * the demo month, shown as the kind of line the reconciliation flags.
  */
 export function Reconciliation({ copy }: { copy: SiteCopy }) {
-  const slices = FLOW.filter((step) => step.key !== "sales");
+  const slices = FLOW.filter((step) => step.kind !== "sales" && step.kind !== "withheld");
+  const withheld = FLOW.filter((step) => step.kind === "withheld" && step.amount > 0);
   const expected = DEMO.sales - DEMO.platformCut - DEMO.discounts;
   const flagged = DEMO.unmatchedAds;
   const paid = expected - flagged;
@@ -69,7 +70,6 @@ export function Reconciliation({ copy }: { copy: SiteCopy }) {
                   step.key === "commission" && "bg-foreground/45",
                   step.key === "food" && "bg-foreground/30",
                   step.key === "unmatchedAds" && "bg-destructive/70",
-                  step.key === "tds" && "bg-foreground/10",
                 )}
                 style={{ width: `${(step.share * 100).toFixed(2)}%` }}
                 title={copy.recon.labels[step.key]}
@@ -93,9 +93,7 @@ export function Reconciliation({ copy }: { copy: SiteCopy }) {
                       ? "font-semibold text-foreground"
                       : step.key === "unmatchedAds"
                         ? "font-medium text-destructive"
-                        : step.key === "tds"
-                          ? "italic text-muted-foreground"
-                          : "text-muted-foreground",
+                        : "text-muted-foreground",
                   )}
                 >
                   {copy.recon.labels[step.key]}
@@ -113,6 +111,19 @@ export function Reconciliation({ copy }: { copy: SiteCopy }) {
               </div>
             ))}
           </dl>
+
+          {withheld.map((step) => (
+            <div
+              key={step.key}
+              className="mt-4 flex items-baseline justify-between gap-3 rounded-xl border border-dashed border-border px-4 py-3"
+            >
+              <span className="text-sm text-muted-foreground">
+                {copy.recon.labels[step.key]}
+                <span className="ms-2 text-xs">{pct(step.share)}</span>
+              </span>
+              <span className="tabular text-sm font-medium">{money(step.amount)}</span>
+            </div>
+          ))}
 
           <p className="mt-6 text-xs leading-relaxed text-muted-foreground">{copy.recon.note}</p>
         </div>

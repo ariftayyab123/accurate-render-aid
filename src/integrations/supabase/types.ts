@@ -45,6 +45,7 @@ export type Database = {
           created_at: string
           currency: string
           data_mode: string
+          discount_funding_share: number
           id: string
           market: string
           onboarding_complete: boolean
@@ -52,6 +53,7 @@ export type Database = {
           outlet_name: string
           owner_id: string
           restaurant_name: string
+          tax_scheme: string
           updated_at: string
         }
         Insert: {
@@ -60,6 +62,7 @@ export type Database = {
           created_at?: string
           currency?: string
           data_mode?: string
+          discount_funding_share?: number
           id?: string
           market?: string
           onboarding_complete?: boolean
@@ -67,6 +70,7 @@ export type Database = {
           outlet_name?: string
           owner_id: string
           restaurant_name?: string
+          tax_scheme?: string
           updated_at?: string
         }
         Update: {
@@ -75,6 +79,7 @@ export type Database = {
           created_at?: string
           currency?: string
           data_mode?: string
+          discount_funding_share?: number
           id?: string
           market?: string
           onboarding_complete?: boolean
@@ -82,6 +87,7 @@ export type Database = {
           outlet_name?: string
           owner_id?: string
           restaurant_name?: string
+          tax_scheme?: string
           updated_at?: string
         }
         Relationships: []
