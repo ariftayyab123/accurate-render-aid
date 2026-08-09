@@ -1,5 +1,11 @@
 import Papa from "papaparse";
-import type { Order, SettlementOverrides, Settlement, ChannelCode } from "@/data/types";
+import type {
+  Order,
+  SettlementOverrides,
+  Settlement,
+  ChannelCode,
+  FlaggedCharge,
+} from "@/data/types";
 
 export type CsvRow = Record<string, string | number | null | undefined>;
 
@@ -8,6 +14,28 @@ export function generateId(): string {
     return crypto.randomUUID();
   }
   return Math.random().toString(36).substring(2, 15);
+}
+
+const TCS_COLUMN_PATTERN = /\btcs\b|tax collected at source|section\s*52/i;
+
+const TCS_NOTE =
+  "TCS shown on your statement — this normally doesn't apply to aggregator food delivery orders, worth checking with your accountant.";
+
+/**
+ * TCS under Section 52 is not modelled as a field: a platform paying GST under 9(5)
+ * cannot also collect TCS on the same supply. But if a column ever shows up, we name it
+ * rather than calling a government tax collection "unauthorized".
+ */
+export function detectFlaggedCharges(row: CsvRow): FlaggedCharge[] {
+  const flagged: FlaggedCharge[] = [];
+  for (const [key, raw] of Object.entries(row)) {
+    if (!TCS_COLUMN_PATTERN.test(key)) continue;
+    if (raw === undefined || raw === null || raw === "") continue;
+    const amount = Math.abs(parseFloat(raw.toString().replace(/,/g, "")));
+    if (!Number.isFinite(amount) || amount === 0) continue;
+    flagged.push({ label: key.trim(), amount, note: TCS_NOTE });
+  }
+  return flagged;
 }
 
 /** Reads a numeric cell, tolerating thousands separators and missing columns. */
@@ -47,6 +75,8 @@ export type MappedOrderInput = {
 
 /** Builds a normalised imported order from channel-specific column readings. */
 export function buildImportedOrder(input: MappedOrderInput): Order {
+  const flaggedCharges = detectFlaggedCharges(input.row);
+  const flaggedTotal = flaggedCharges.reduce((sum, charge) => sum + charge.amount, 0);
   const knownDeductions =
     input.serviceFee +
     input.platformFee +
@@ -75,13 +105,17 @@ export function buildImportedOrder(input: MappedOrderInput): Order {
       adAllocation: input.adAllocation,
       fulfilmentCost: input.fulfilmentCost,
       adjustment: input.adjustment,
-      unauthorizedDeductions: Math.max(0, input.netDeductionsStated - knownDeductions),
+      unauthorizedDeductions: Math.max(
+        0,
+        input.netDeductionsStated - knownDeductions - flaggedTotal,
+      ),
     },
     tdsWithheld: input.tdsWithheld,
     taxTreatment: {
       feeTaxAmount: input.gstOnServiceFee,
       recoverable: input.feeTaxRecoverable ?? false,
     },
+    ...(flaggedCharges.length ? { flaggedCharges } : {}),
     status: "delivered",
     dataQuality: "imported",
   };
