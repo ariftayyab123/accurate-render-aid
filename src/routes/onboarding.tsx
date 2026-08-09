@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { MARKETS, marketConfig } from "@/data/markets";
+import { MARKETS, defaultTaxScheme, marketConfig } from "@/data/markets";
 import { defaultLanguageForMarket } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/lib/auth";
@@ -36,7 +36,13 @@ export const Route = createFileRoute("/onboarding")({
   component: Onboarding,
 });
 
-const STEPS = ["Restaurant", "Outlet", "Channels", "Data"];
+const STEPS = ["Restaurant", "Outlet", "Channels", "Tax", "Data"];
+
+const FUNDING_OPTIONS = [
+  { value: 1, label: "I fund all of it", hint: "Most common on flat-off and freebie offers." },
+  { value: 0.5, label: "We split it evenly", hint: "Half restaurant-funded, half platform-funded." },
+  { value: 0.25, label: "The app funds most of it", hint: "You carry about a quarter." },
+];
 
 function Onboarding() {
   const { state, update } = useWorkspace();
@@ -73,6 +79,7 @@ function Onboarding() {
       language: defaultLanguageForMarket(config.code),
       channels: config.channels.map((channel) => channel.code),
       dataMode: config.demoReady ? state.dataMode : "empty",
+      taxScheme: defaultTaxScheme(config.code),
     });
   };
 
@@ -80,7 +87,8 @@ function Onboarding() {
     (step === 0 && state.restaurantName.trim() !== "" && state.city.trim() !== "") ||
     (step === 1 && state.outletName.trim() !== "") ||
     (step === 2 && state.channels.length > 0) ||
-    step === 3;
+    step === 3 ||
+    step === 4;
 
   const goNext = async () => {
     const userId = session?.user.id;
@@ -210,6 +218,63 @@ function Onboarding() {
           ) : null}
 
           {step === 3 ? (
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <div>
+                  <Label>How are you registered for tax?</Label>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    This decides whether the {market.tax.label.toLowerCase()} is money you get back
+                    or money you lose for good. We use your answer, never an assumption.
+                  </p>
+                </div>
+                {market.tax.schemes.map((scheme) => (
+                  <button
+                    key={scheme.code}
+                    type="button"
+                    onClick={() => update({ taxScheme: scheme.code })}
+                    className={cn(
+                      "w-full rounded-md border px-3 py-2.5 text-left transition-colors",
+                      state.taxScheme === scheme.code
+                        ? "border-primary bg-accent/50"
+                        : "border-border hover:bg-accent/30",
+                    )}
+                  >
+                    <span className="block text-sm font-medium">{scheme.label}</span>
+                    <span className="mt-0.5 block text-xs text-muted-foreground">
+                      {scheme.hint}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <Label>When the app runs an offer, how much do you fund?</Label>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Settlement files rarely say this clearly, so we ask instead of guessing.
+                  </p>
+                </div>
+                {FUNDING_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => update({ discountFundingShare: option.value })}
+                    className={cn(
+                      "w-full rounded-md border px-3 py-2.5 text-left transition-colors",
+                      state.discountFundingShare === option.value
+                        ? "border-primary bg-accent/50"
+                        : "border-border hover:bg-accent/30",
+                    )}
+                  >
+                    <span className="block text-sm font-medium">{option.label}</span>
+                    <span className="mt-0.5 block text-xs text-muted-foreground">{option.hint}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {step === 4 ? (
             <div className="space-y-6">
               <div>
                 <h3 className="font-medium">Upload your first settlement</h3>
