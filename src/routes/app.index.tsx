@@ -263,10 +263,11 @@ function Overview() {
       {totals.taxWithheld > 0 ? (
         <section className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-border px-5 py-4">
           <div>
-            <p className="text-sm font-semibold">Withheld, not lost</p>
+            <p className="text-sm font-semibold">Income-tax withheld</p>
             <p className="text-xs text-muted-foreground">
-              TDS 194-O held back by the apps. It is claimable against your income tax, so it never
-              reduces what you kept above.
+              Held back by the apps toward your income tax. It lowers the cash they pay you, not
+              what you kept above — and can generally be claimed as tax credit, subject to your tax
+              records and return.
             </p>
           </div>
           <p className="display text-xl font-semibold tabular">
