@@ -124,7 +124,7 @@ const en: SiteCopy = {
       unmatchedAds: "Ads with no matching campaign ⚠",
       discounts: "Discounts you funded",
       food: "Food and packing",
-      tds: "TDS 194-O withheld (0.1%) — held back, you claim it later",
+      tds: "Income-tax withheld (0.1%) — a tax credit, not a platform cost",
       kept: "What you kept",
     },
     note: "One month, 431 orders of sample data. This is money kept before rent, salaries and electricity — we never call it net profit.",
@@ -173,7 +173,7 @@ const en: SiteCopy = {
     title: "Built for your market",
     india: {
       title: "India",
-      body: "Built for Indian restaurant accounting — GST on commission handled correctly, TDS under Section 194-O tracked separately as the tax credit it is, not folded into your losses.",
+      body: "Built for Indian restaurant accounting — GST on commission handled correctly, income tax withheld by the apps tracked separately as the tax credit it is, not folded into your losses.",
     },
     uae: {
       title: "UAE",
@@ -190,7 +190,7 @@ const en: SiteCopy = {
       },
       {
         q: "Why is my Zomato/Swiggy payout smaller than expected?",
-        a: "Usually one or more of: GST on the platform's commission, promotional discount co-funding, ad charges, refund adjustments, or TDS withheld under Section 194-O. Retained breaks down every deduction on every order so you can see exactly which one.",
+        a: "Usually one or more of: GST on the platform's commission, promotional discount co-funding, ad charges, refund adjustments, or income tax withheld by the platform. Retained breaks down every deduction on every order so you can see exactly which one.",
       },
       {
         q: "Does my restaurant have to pay GST on Zomato/Swiggy orders?",
@@ -291,7 +291,7 @@ const hi: SiteCopy = {
       unmatchedAds: "बिना कैंपेन के विज्ञापन चार्ज ⚠",
       discounts: "आपकी दी हुई छूट",
       food: "खाना और पैकिंग",
-      tds: "TDS 194-O रोका गया (0.1%) — बाद में वापस मिलेगा",
+      tds: "आयकर रोका गया (0.1%) — टैक्स क्रेडिट, प्लैटफ़ॉर्म का ख़र्च नहीं",
       kept: "आपके पास बचा",
     },
     note: "एक महीना, 431 ऑर्डर का नमूना डेटा। यह किराया, तनख़्वाह और बिजली से पहले का पैसा है — हम इसे कभी नेट प्रॉफ़िट नहीं कहते।",
@@ -337,7 +337,7 @@ const hi: SiteCopy = {
     title: "आपके बाज़ार के लिए बना",
     india: {
       title: "भारत",
-      body: "भारतीय रेस्टोरेंट अकाउंटिंग के हिसाब से — कमीशन पर GST सही तरीक़े से, और धारा 194-O का TDS अलग से टैक्स क्रेडिट की तरह, नुक़सान में जोड़े बिना।",
+      body: "भारतीय रेस्टोरेंट अकाउंटिंग के हिसाब से — कमीशन पर GST सही तरीक़े से, और ऐप्स द्वारा रोका गया आयकर अलग से टैक्स क्रेडिट की तरह, नुक़सान में जोड़े बिना।",
     },
     uae: {
       title: "यूएई",
@@ -354,7 +354,7 @@ const hi: SiteCopy = {
       },
       {
         q: "मेरा पेआउट उम्मीद से कम क्यों आया?",
-        a: "आमतौर पर इनमें से कोई: कमीशन पर GST, प्रोमो छूट में आपका हिस्सा, विज्ञापन चार्ज, रिफ़ंड एडजस्टमेंट, या धारा 194-O के तहत काटा गया TDS। Retained हर ऑर्डर की हर कटौती अलग-अलग दिखाता है।",
+        a: "आमतौर पर इनमें से कोई: कमीशन पर GST, प्रोमो छूट में आपका हिस्सा, विज्ञापन चार्ज, रिफ़ंड एडजस्टमेंट, या प्लैटफ़ॉर्म द्वारा रोका गया आयकर। Retained हर ऑर्डर की हर कटौती अलग-अलग दिखाता है।",
       },
       {
         q: "क्या ज़ोमैटो/स्विगी ऑर्डर पर मुझे GST देना होता है?",
@@ -494,7 +494,7 @@ const ar: SiteCopy = {
     title: "مصمّم لسوقك",
     india: {
       title: "الهند",
-      body: "مبني على المحاسبة الهندية — ضريبة السلع والخدمات على العمولة تُعالَج بشكل صحيح، والضريبة المقتطعة وفق المادة 194-O تُتابَع كرصيد ضريبي مستقل لا كخسارة.",
+      body: "مبني على المحاسبة الهندية — ضريبة السلع والخدمات على العمولة تُعالَج بشكل صحيح، والضريبة المقتطعة من الدخل تُتابَع كرصيد ضريبي مستقل لا كخسارة.",
     },
     uae: {
       title: "الإمارات",
